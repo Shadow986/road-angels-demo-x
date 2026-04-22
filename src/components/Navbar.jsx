@@ -30,13 +30,13 @@ export default function Navbar({ setPage, currentPage }) {
     <>
       <motion.nav
         className={`fixed top-0 w-full z-[100] px-6 md:px-20 py-5 flex justify-between items-center transition-all duration-500 border-b ${
-          scrolled || isMobileMenuOpen ? "bg-white/95 backdrop-blur-2xl border-black/10 shadow-sm" : "bg-transparent border-transparent"
+          scrolled || isMobileMenuOpen ? "bg-black backdrop-blur-2xl border-white/10" : "bg-black border-white/10"
         }`}
       >
         <div className="flex items-center gap-4 cursor-pointer z-[110]" onClick={() => handleNavigate('home')}>
           <img src="/Logo.png" alt="Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
           <div className="flex flex-col">
-            <div className="text-[14px] md:text-[18px] tracking-[0.2em] font-black italic text-black leading-none uppercase">
+            <div className="text-[14px] md:text-[18px] tracking-[0.2em] font-black italic text-white leading-none uppercase">
               ROAD <span className="text-[var(--color-halo-silver)]">ANGELS</span>
             </div>
             <div className="text-[8px] md:text-[10px] tracking-[0.4em] font-bold text-gray-400 uppercase mt-1">
@@ -50,16 +50,16 @@ export default function Navbar({ setPage, currentPage }) {
             <button 
               key={link.id} 
               onClick={() => handleNavigate(link.id)} 
-              className={`transition-colors ${currentPage === link.id ? 'text-[var(--color-halo-silver)]' : 'text-gray-400 hover:text-black'}`}
+              className={`transition-colors ${currentPage === link.id ? 'text-[var(--color-halo-silver)]' : 'text-gray-400 hover:text-white'}`}
             >
               {link.label}
             </button>
           ))}
           <div className="relative group py-2">
-            <button className="flex items-center gap-2 text-gray-400 group-hover:text-black transition-colors uppercase" onClick={(e) => e.stopPropagation()}>
+            <button className="flex items-center gap-2 text-gray-400 group-hover:text-white transition-colors uppercase" onClick={(e) => e.stopPropagation()}>
               Policies <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
             </button>
-            <div className="absolute top-full right-0 w-64 bg-white border border-black/10 hidden group-hover:block py-3 shadow-xl">
+            <div className="absolute top-full right-0 w-64 bg-black border border-white/10 hidden group-hover:block py-3 shadow-xl">
               {policies.map((p) => (
                 <a 
                   key={p.name} 
@@ -67,7 +67,7 @@ export default function Navbar({ setPage, currentPage }) {
                   target="_blank" 
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 text-[10px] text-gray-400 hover:text-black uppercase tracking-widest transition-colors"
+                  className="flex items-center gap-3 px-5 py-3 hover:bg-white/5 text-[10px] text-gray-400 hover:text-white uppercase tracking-widest transition-colors"
                 >
                   <FileText size={14} className="text-[var(--color-halo-silver)]" />
                   {p.name}
@@ -78,10 +78,10 @@ export default function Navbar({ setPage, currentPage }) {
         </div>
 
         <div className="flex items-center gap-5 lg:hidden z-[110]">
-          <button onClick={() => handleNavigate('auth')} className="text-gray-400 hover:text-black">
+          <button onClick={() => handleNavigate('auth')} className="text-gray-400 hover:text-white">
             <User size={24} />
           </button>
-          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-black">
+          <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
