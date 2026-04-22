@@ -161,8 +161,8 @@ function App() {
       {!isDashboardView && <StickyWhatsApp />}
 
       {!isDashboardView && (
-        <footer className="bg-white py-12 border-t border-gray-200">
-          <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[8px] text-gray-700 uppercase tracking-[0.4em] font-bold">
+        <footer className="bg-black py-12 border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[8px] text-gray-500 uppercase tracking-[0.4em] font-bold">
             <p>&copy; {new Date().getFullYear()} Road Angels RSA</p>
             <p className="hover:text-white cursor-pointer transition-colors" onClick={() => navigateTo('admin-login')}>SECURE TERMINAL</p>
             <p>Developed by Assend Creatives</p>
