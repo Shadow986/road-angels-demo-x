@@ -1,0 +1,162 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, Zap, CheckCircle2 } from "lucide-react";
+
+// Paths matched to your public folder root
+const backgrounds = [
+  { url: '/hero-car.jpg', brand: 'Volkswagen' },
+  { url: '/audi-rs3.png', brand: 'Audi' },
+  { url: '/porsche-bg.png', brand: 'Porsche' }
+];
+
+export default function Hero() {
+  const [bgIndex, setBgIndex] = useState(0);
+  const [ignite, setIgnite] = useState(false);
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({ brand: '', type: '', phone: '' });
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIgnite(true), 800);
+    const bgTimer = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % backgrounds.length);
+    }, 6000);
+    return () => { clearTimeout(timer); clearInterval(bgTimer); };
+  }, []);
+
+  const handleBrandSelect = (brand) => {
+    setFormData({ ...formData, brand });
+    setStep(2);
+  };
+
+  return (
+    <section className="relative min-h-screen flex items-center px-6 md:px-20 py-24 overflow-hidden bg-[#050505]">
+      {/* BACKGROUND LAYER */}
+      <AnimatePresence mode='wait'>
+        <motion.div 
+          key={bgIndex} 
+          initial={{ opacity: 0, scale: 1.05 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          exit={{ opacity: 0 }} 
+          transition={{ duration: 1.5, ease: "easeOut" }} 
+          className="absolute inset-0"
+        >
+          <img 
+            src={backgrounds[bgIndex].url} 
+            className="w-full h-full object-cover brightness-[1.4] contrast-[1.1] saturate-[1.1]" 
+            alt="VAG Specialist Vehicle" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="relative z-10 container mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        {/* LEFT CONTENT */}
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }} 
+          animate={{ opacity: ignite ? 1 : 0, x: ignite ? 0 : -30 }} 
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          <div className="flex items-center gap-2 mb-4 text-[#2e375f] font-bold tracking-[0.3em] text-[10px] uppercase">
+            <Zap size={14} className="fill-current" /> VAG GROUP SPECIALISTS
+          </div>
+          <h1 className="text-5xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter uppercase italic text-white">
+            DSG <span className="text-gray-500">PRECISION.</span> <br />
+            RESTORED.
+          </h1>
+          <p className="text-xs md:text-sm text-gray-400 max-w-md border-l-2 border-[#2e375f] pl-6 mb-8 uppercase tracking-[0.2em] leading-loose">
+            Specializing in Clutch Replacement, Mechatronic Diagnostics, and Performance Gear Repairs for South Africa's elite VAG fleet.
+          </p>
+
+          {/* LOGO SECTION: Even spacing and centered */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 1, delay: 1.5 }}
+            className="flex items-center justify-between mt-12 border-t border-white/5 pt-10 max-w-md mx-auto lg:mx-0"
+          >
+             {/* VW - Height increased */}
+             <div className="flex justify-center flex-1">
+                <img src="/assets/VW-logo.png" className="h-16 w-auto object-contain" alt="Volkswagen" />
+             </div>
+             {/* Audi - Height increased */}
+             <div className="flex justify-center flex-1">
+                <img src="/assets/audi-logo.png" className="h-10 w-auto object-contain" alt="Audi" />
+             </div>
+             {/* Porsche - Height increased */}
+             <div className="flex justify-center flex-1">
+                <img src="/assets/Porsche-logo.png" className="h-20 w-auto object-contain" alt="Porsche" />
+             </div>
+          </motion.div>
+        </motion.div>
+
+        {/* RIGHT CONTENT: STEPPER FORM */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: ignite ? 1 : 0, y: ignite ? 0 : 20 }}
+          className="bg-[#0b0f14]/95 backdrop-blur-3xl border border-white/10 p-8 md:p-12 rounded-2xl shadow-2xl w-full max-w-md lg:ml-auto"
+        >
+          <div className="flex gap-2 mb-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className={`h-1 flex-1 transition-all duration-700 rounded-full ${step >= i ? 'bg-[#2e375f]' : 'bg-white/5'}`} />
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+                <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-500 uppercase">01. Select Brand</h3>
+                <div className="space-y-3">
+                  {["Audi", "Volkswagen", "Porsche"].map((brand) => (
+                    <button 
+                      key={brand} 
+                      onClick={() => handleBrandSelect(brand)} 
+                      className="w-full text-left p-5 bg-white/5 border border-white/5 hover:border-[#2e375f] hover:bg-white/10 transition-all flex justify-between items-center group uppercase text-[10px] tracking-widest font-black text-white"
+                    >
+                      {brand} <ChevronRight className="group-hover:translate-x-2 transition-transform text-[#2e375f]" size={16} />
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {step === 2 && (
+               <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+                  <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-500 uppercase">02. Transmission Model</h3>
+                  <div className="space-y-3">
+                    {["DQ200 (7-Speed)", "DQ250 (6-Speed)", "DL501 (S-Tronic)"].map((type) => (
+                      <button 
+                        key={type} 
+                        onClick={() => { setFormData({...formData, type}); setStep(3); }} 
+                        className="w-full text-left p-5 bg-white/5 border border-white/5 hover:border-[#2e375f] transition-all uppercase text-[10px] tracking-widest font-black text-white"
+                      >
+                        {type}
+                      </button>
+                    ))}
+                    <button onClick={() => setStep(1)} className="w-full text-center py-4 text-[8px] text-gray-500 font-bold tracking-widest uppercase mt-2">← Back</button>
+                  </div>
+               </motion.div>
+            )}
+
+            {step === 3 && (
+                <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                    <div className="flex items-center gap-3 mb-6">
+                      <CheckCircle2 size={18} className="text-[#2e375f]" />
+                      <h3 className="text-[10px] font-black tracking-[0.3em] text-gray-400 uppercase">Finalize Request</h3>
+                    </div>
+                    <input 
+                      type="tel" 
+                      placeholder="ENTER MOBILE NUMBER" 
+                      className="w-full bg-black/40 border border-white/10 p-5 mb-4 outline-none focus:border-[#2e375f] text-white font-black tracking-widest rounded-lg" 
+                    />
+                    <button className="w-full bg-[#2e375f] py-5 text-white font-black uppercase tracking-[0.3em] text-[11px] hover:brightness-125 transition-all rounded-lg shadow-xl shadow-blue-900/20">
+                        Request Shift-Check
+                    </button>
+                    <button onClick={() => setStep(2)} className="w-full text-center py-4 text-[8px] text-gray-500 font-bold tracking-widest uppercase mt-2">Change details</button>
+                </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </section>
+  );
+}

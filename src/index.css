@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-halo-silver: #B0C4DE;
+  --color-vag-blue: #2e375f;
+  --color-white: #ffffff;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-black antialiased selection:bg-halo-silver selection:text-black;
+    margin: 0;
+    overflow-x: hidden;
+  }
+}
+
+main { padding-top: env(safe-area-inset-top); }
