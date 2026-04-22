@@ -11,7 +11,7 @@ const InputField = ({ label, type, placeholder, value, onChange }) => (
       value={value}
       onChange={onChange}
       required
-      className="w-full bg-white/[0.02] border border-white/10 p-4 text-[13px] text-white focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-800" 
+      className="w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400" 
       placeholder={placeholder} 
     />
   </div>
@@ -48,20 +48,18 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   };
 
   return (
-    <div className="bg-[#050505] min-h-screen flex flex-col items-center justify-center px-6 py-20 font-sans relative">
-      
-      {/* TOP LEFT BRANDING & BACK BUTTON */}
+    <div className="bg-white min-h-screen flex flex-col items-center justify-center px-6 py-20 font-sans relative">
       <div className="absolute top-10 left-10 flex flex-col gap-4">
         <button 
           onClick={onBack}
-          className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors group"
+          className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors group"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
           Back to Home
         </button>
-        <div className="flex items-center gap-3 opacity-30 select-none">
-           <img src="/Logo.png" alt="" className="w-6 h-6 grayscale" />
-           <span className="text-[10px] font-black italic tracking-tighter text-white">
+        <div className="flex items-center gap-3 opacity-40 select-none">
+           <img src="/Logo.png" alt="" className="w-6 h-6" />
+           <span className="text-[10px] font-black italic tracking-tighter text-black">
              ROAD <span className="text-[var(--color-halo-silver)]">ANGELS</span>
            </span>
         </div>
@@ -69,16 +67,16 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
 
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 border border-white/5 bg-white/[0.02] rounded-full mb-8 text-[var(--color-halo-silver)] shadow-2xl">
+          <div className="inline-flex items-center justify-center w-20 h-20 border border-black/10 bg-gray-50 rounded-full mb-8 text-[var(--color-halo-silver)] shadow-lg">
             <ShieldCheck size={36} strokeWidth={1} />
           </div>
-          <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-2 leading-none">
+          <h2 className="text-4xl font-black italic uppercase tracking-tighter text-black mb-2 leading-none">
             {view === "login" ? "Welcome Back" : view === "register" ? "Join Program" : "Reset Access"}
           </h2>
-          <p className="text-[9px] uppercase tracking-[0.4em] text-gray-600 font-bold">Secure Member Portal</p>
+          <p className="text-[9px] uppercase tracking-[0.4em] text-gray-400 font-bold">Secure Member Portal</p>
         </div>
 
-        <div className="bg-white/[0.01] border border-white/5 p-10 rounded-sm">
+        <div className="bg-gray-50 border border-black/10 p-10 rounded-sm">
           <AnimatePresence mode="wait">
             {view === "login" && (
               <motion.form key="login" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6" onSubmit={handleAuth}>
@@ -86,15 +84,15 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
                     <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Password</label>
-                    <button type="button" onClick={() => setView("forgot")} className="text-[8px] uppercase text-gray-700 hover:text-white transition-colors font-bold">Forgot Access?</button>
+                    <button type="button" onClick={() => setView("forgot")} className="text-[8px] uppercase text-gray-400 hover:text-black transition-colors font-bold">Forgot Access?</button>
                   </div>
-                  <input type="password" required className="w-full bg-white/[0.02] border border-white/10 p-4 text-[13px] text-white focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-800" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                  <input type="password" required className="w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
                 </div>
-                <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
+                <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3">
                   {loading ? <Loader2 className="animate-spin" size={14} /> : "Authorize Sign In"} <ChevronRight size={14} />
                 </button>
-                <p className="text-center text-[9px] text-gray-600 uppercase tracking-widest font-bold pt-6 border-t border-white/5">
-                  New Member? <button type="button" onClick={() => setView("register")} className="text-white hover:text-[var(--color-halo-silver)] ml-2">Register Now</button>
+                <p className="text-center text-[9px] text-gray-400 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
+                  New Member? <button type="button" onClick={() => setView("register")} className="text-black hover:text-[var(--color-halo-silver)] ml-2">Register Now</button>
                 </p>
               </motion.form>
             )}
@@ -104,11 +102,11 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
                 <InputField label="Full Name" type="text" placeholder="Driver Name" value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} />
                 <InputField label="Email Address" type="email" placeholder="email@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
                 <InputField label="Password" type="password" placeholder="Create Access Key" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
-                <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
+                <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3">
                   {loading ? <Loader2 className="animate-spin" size={14} /> : "Create Account"} <ChevronRight size={14} />
                 </button>
-                <p className="text-center text-[9px] text-gray-600 uppercase tracking-widest font-bold pt-6 border-t border-white/5">
-                  Already Registered? <button type="button" onClick={() => setView("login")} className="text-white hover:text-[var(--color-halo-silver)] ml-2">Sign In Here</button>
+                <p className="text-center text-[9px] text-gray-400 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
+                  Already Registered? <button type="button" onClick={() => setView("login")} className="text-black hover:text-[var(--color-halo-silver)] ml-2">Sign In Here</button>
                 </p>
               </motion.form>
             )}

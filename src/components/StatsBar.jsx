@@ -23,25 +23,24 @@ export default function StatsBar() {
   return (
     <div className="relative z-30 -mt-16 px-4 md:px-20">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-2 lg:grid-cols-4 bg-[#080808] border border-white/5 divide-x divide-white/5 rounded-sm shadow-2xl overflow-hidden">
+        <div className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-black/10 divide-x divide-black/5 rounded-sm shadow-xl overflow-hidden">
           {stats.map((stat, index) => (
-            <div key={index} className="p-8 group relative overflow-hidden">
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none opacity-20" />
-              <div className="flex items-center gap-2 mb-6 text-gray-500">
-                <div className="text-[var(--color-halo-silver)] opacity-50">{stat.icon}</div>
+            <div key={index} className="p-8 group relative overflow-hidden bg-white hover:bg-gray-50 transition-colors">
+              <div className="flex items-center gap-2 mb-6 text-gray-400">
+                <div className="text-[var(--color-halo-silver)] opacity-70">{stat.icon}</div>
                 <span className="text-[9px] uppercase tracking-[0.4em] font-bold">{stat.label}</span>
               </div>
-              <div className="text-4xl font-mono font-black italic text-white flex items-baseline tracking-tighter mb-4">
-                {stat.prefix && <span className="text-sm mr-2 text-gray-600 not-italic uppercase font-bold">{stat.prefix}</span>}
+              <div className="text-4xl font-mono font-black italic text-black flex items-baseline tracking-tighter mb-4">
+                {stat.prefix && <span className="text-sm mr-2 text-gray-400 not-italic uppercase font-bold">{stat.prefix}</span>}
                 <Counter value={stat.value} />
                 <span className="text-[var(--color-halo-silver)] ml-1">{stat.suffix}</span>
               </div>
-              <div className="h-[2px] w-full bg-white/5 relative overflow-hidden">
+              <div className="h-[2px] w-full bg-black/5 relative overflow-hidden">
                 <motion.div 
                   initial={{ width: 0 }}
                   whileInView={{ width: "75%" }}
                   transition={{ duration: 1.5, delay: index * 0.2 }}
-                  className="absolute h-full bg-[var(--color-halo-silver)] shadow-[0_0_10px_var(--color-halo-silver)]" 
+                  className="absolute h-full bg-[var(--color-halo-silver)]" 
                 />
               </div>
             </div>

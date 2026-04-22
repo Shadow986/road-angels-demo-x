@@ -2,23 +2,18 @@ import React from "react";
 import { Trophy, ChevronRight, CheckCircle2 } from "lucide-react";
 
 const BadgeTierCard = ({ trophyColor, title, goal, description, features }) => (
-  <div className="flex flex-col bg-[#080808] border border-white/5 p-10 hover:border-white/10 transition-all duration-500 group relative">
-    <div className="w-16 h-16 flex items-center justify-center border border-white/10 bg-white/[0.02] mb-10">
+  <div className="flex flex-col bg-white border border-black/5 p-10 hover:border-black/10 transition-all duration-500 group relative">
+    <div className="w-16 h-16 flex items-center justify-center border border-black/10 bg-gray-50 mb-10">
       <Trophy size={28} color={trophyColor} strokeWidth={1.5} />
     </div>
-    
-    <h3 className="text-3xl font-black italic uppercase tracking-tighter text-white mb-2">{title}</h3>
-    <p className="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-500">{goal} Goal</p>
-
-    <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed font-bold mb-10">
-      "{description}"
-    </p>
-
-    <div className="space-y-4 pt-8 border-t border-white/5">
+    <h3 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-2">{title}</h3>
+    <p className="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-400">{goal} Goal</p>
+    <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed font-bold mb-10">"{description}"</p>
+    <div className="space-y-4 pt-8 border-t border-black/5">
       {features.map((feature, i) => (
         <div key={i} className="flex items-center gap-3">
-          <CheckCircle2 size={14} className="text-[#2e375f]" />
-          <span className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">{feature}</span>
+          <CheckCircle2 size={14} className="text-[var(--color-vag-blue)]" />
+          <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold">{feature}</span>
         </div>
       ))}
     </div>
@@ -33,23 +28,19 @@ export default function MembershipPage() {
   ];
 
   return (
-    <div className="bg-[#050505] min-h-screen pt-32 pb-24 px-8 md:px-20">
+    <div className="bg-white min-h-screen pt-32 pb-24 px-8 md:px-20">
       <div className="max-w-7xl mx-auto mb-20 text-center">
-        <h1 className="text-6xl md:text-9xl font-black italic uppercase tracking-tighter text-white">
-          THE <span className="text-[#2e375f]">ANGEL</span> BOND.
+        <h1 className="text-6xl md:text-9xl font-black italic uppercase tracking-tighter text-black">
+          THE <span className="text-[var(--color-vag-blue)]">ANGEL</span> BOND.
         </h1>
       </div>
-
-      <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-px bg-white/5 border border-white/5 mb-24">
-        {badgeTiers.map((tier, i) => (
-          <BadgeTierCard key={i} {...tier} />
-        ))}
+      <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-px bg-black/5 border border-black/5 mb-24">
+        {badgeTiers.map((tier, i) => <BadgeTierCard key={i} {...tier} />)}
       </div>
-
       <div className="max-w-md mx-auto">
-          <button className="w-full py-5 bg-[#2e375f] text-white text-[10px] font-black uppercase tracking-[0.3em] hover:brightness-125 transition-all flex items-center justify-center gap-3">
-             Subscribe R195/Month <ChevronRight size={14} />
-          </button>
+        <button className="w-full py-5 bg-[var(--color-vag-blue)] text-white text-[10px] font-black uppercase tracking-[0.3em] hover:brightness-125 transition-all flex items-center justify-center gap-3">
+          Subscribe R195/Month <ChevronRight size={14} />
+        </button>
       </div>
     </div>
   );
