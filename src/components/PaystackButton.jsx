@@ -6,7 +6,7 @@ export default function PaystackButton({ navigateTo }) {
     if (!user) { navigateTo('auth'); return; }
 
     if (!window.PaystackPop) {
-      alert('Payment system still loading, please wait a moment and try again.');
+      alert('Payment system still loading, please try again.');
       return;
     }
 
@@ -14,20 +14,24 @@ export default function PaystackButton({ navigateTo }) {
       window.PaystackPop.initialize();
     }
 
-    const handler = window.PaystackPop.setup({
+    const onSuccess = async (transaction) => {
+      await supabase.functions.invoke('verify-payment', {
+        body: { reference: transaction.reference, userId: user.id }
+      });
+      alert('Payment successful! You are now an active member.');
+    };
+
+    const onClose = () => {};
+
+    window.PaystackPop.setup({
       key: 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
       email: user.email,
       amount: 19500,
       currency: 'ZAR',
-      callback: async (t) => {
-        await supabase.functions.invoke('verify-payment', {
-          body: { reference: t.reference, userId: user.id }
-        });
-        alert('Payment successful! You are now an active member.');
-      },
-      onClose: () => {},
-    });
-    handler.openIframe();
+      metadata: { userId: user.id },
+      callback: onSuccess,
+      onClose: onClose,
+    }).openIframe();
   };
 
   return (
