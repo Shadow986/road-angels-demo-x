@@ -2,8 +2,9 @@ import { supabase } from "../lib/supabaseClient";
 
 export default function PaystackButton({ navigateTo }) {
   const pay = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { navigateTo('auth'); return; }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { navigateTo('auth'); return; }
+    const user = session.user;
 
     if (!window.PaystackPop) {
       alert('Payment system still loading, please try again.');
