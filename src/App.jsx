@@ -5,6 +5,7 @@ import { supabase } from "./lib/supabaseClient";
 // Public Components
 import Navbar from "./components/Navbar";
 import StickyWhatsApp from "./components/StickyWhatsApp";
+import PaystackButton from "./components/PaystackButton";
 import Hero from "./components/Hero";
 import StatsBar from "./components/StatsBar";
 import TrustBadges from "./components/TrustBadges";
@@ -159,6 +160,7 @@ function App() {
       </main>
 
       {!isDashboardView && <StickyWhatsApp />}
+      {!isDashboardView && <PaystackButton navigateTo={navigateTo} />}
 
       {!isDashboardView && (
         <footer className="bg-black py-12 border-t border-white/10">
