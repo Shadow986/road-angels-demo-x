@@ -22,9 +22,11 @@ export default function MembershipSection({ navigateTo }) {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('user:', user);
       if (!user) { navigateTo('auth'); setLoading(false); return; }
 
       const PaystackPop = window.PaystackPop;
+      console.log('PaystackPop:', PaystackPop);
       if (!PaystackPop) {
         alert('Payment system not loaded. Please refresh and try again.');
         setLoading(false);
@@ -51,10 +53,11 @@ export default function MembershipSection({ navigateTo }) {
         },
         onClose: () => setLoading(false),
       });
+      console.log('handler:', handler);
       handler.openIframe();
     } catch (err) {
       console.error("Payment initialization failed:", err);
-      alert("Could not start payment. Please try again.");
+      alert("Could not start payment: " + err.message);
       setLoading(false);
     }
   };
