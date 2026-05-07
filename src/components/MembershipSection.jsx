@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Trophy, ChevronRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
-import PaystackPop from "@paystack/inline-js";
 
 export default function MembershipSection({ navigateTo }) {
   const [isActive, setIsActive] = useState(false);
@@ -25,14 +24,20 @@ export default function MembershipSection({ navigateTo }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigateTo('auth'); setLoading(false); return; }
 
-      const popup = new PaystackPop();
-      popup.newTransaction({
-        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
+      const PaystackPop = window.PaystackPop;
+      if (!PaystackPop) {
+        alert('Payment system not loaded. Please refresh and try again.');
+        setLoading(false);
+        return;
+      }
+
+      const handler = PaystackPop.setup({
+        key: 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
         email: user.email,
-        amount: 195 * 100, // kobo/cents
+        amount: 195 * 100,
         currency: 'ZAR',
         metadata: { userId: user.id },
-        onSuccess: async (transaction) => {
+        callback: async (transaction) => {
           try {
             const { error } = await supabase.functions.invoke('verify-payment', {
               body: { reference: transaction.reference, userId: user.id }
@@ -44,12 +49,12 @@ export default function MembershipSection({ navigateTo }) {
             alert('Payment received but verification failed. Contact support with ref: ' + transaction.reference);
           }
         },
-        onCancel: () => setLoading(false),
+        onClose: () => setLoading(false),
       });
+      handler.openIframe();
     } catch (err) {
       console.error("Payment initialization failed:", err);
       alert("Could not start payment. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
