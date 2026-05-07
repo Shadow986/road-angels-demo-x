@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Trophy, ChevronRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+import PaystackPop from "@paystack/inline-js";
 
 export default function MembershipSection({ navigateTo }) {
   const [isActive, setIsActive] = useState(false);
@@ -22,14 +23,32 @@ export default function MembershipSection({ navigateTo }) {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigateTo('auth'); return; }
-      const { data, error } = await supabase.functions.invoke('netcash-init', { body: { userId: user.id, email: user.email, amount: 195 } });
-      if (error) throw error;
-      if (data?.url) window.location.href = data.url;
-      else throw new Error("Netcash URL not found");
+      if (!user) { navigateTo('auth'); setLoading(false); return; }
+
+      const popup = new PaystackPop();
+      popup.newTransaction({
+        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+        email: user.email,
+        amount: 195 * 100, // kobo/cents
+        currency: 'ZAR',
+        metadata: { userId: user.id },
+        onSuccess: async (transaction) => {
+          try {
+            const { error } = await supabase.functions.invoke('verify-payment', {
+              body: { reference: transaction.reference, userId: user.id }
+            });
+            if (error) throw error;
+            setIsActive(true);
+            alert('Payment successful! You are now an active member.');
+          } catch (err) {
+            alert('Payment received but verification failed. Contact support with ref: ' + transaction.reference);
+          }
+        },
+        onCancel: () => setLoading(false),
+      });
     } catch (err) {
       console.error("Payment initialization failed:", err);
-      alert("System Error: Could not reach Netcash. Please try again.");
+      alert("Could not start payment. Please try again.");
     } finally {
       setLoading(false);
     }
