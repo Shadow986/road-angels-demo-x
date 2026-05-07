@@ -19,6 +19,7 @@ export default function MembershipSection({ navigateTo }) {
   }, []);
 
   const handleJoin = async () => {
+    alert('Button clicked!');
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -115,7 +116,7 @@ export default function MembershipSection({ navigateTo }) {
                 <li className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> Roadside Assistance</li>
               </ul>
               <button
-                onClick={handleJoin}
+                onClick={(e) => { e.stopPropagation(); handleJoin(); }}
                 disabled={isActive || loading}
                 className={`w-full py-4 text-[9px] font-black uppercase tracking-[0.2em] transition-all
                   ${isActive ? 'bg-green-50 text-green-600 border border-green-200 cursor-default' : 'bg-[var(--color-vag-blue)] text-white hover:bg-black'}
