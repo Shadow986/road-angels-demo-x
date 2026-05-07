@@ -160,7 +160,7 @@ function App() {
       </main>
 
       {!isDashboardView && <StickyWhatsApp />}
-      {!isDashboardView && <PaystackButton navigateTo={navigateTo} />}
+      {currentPage !== 'admin-dashboard' && currentPage !== 'admin-login' && <PaystackButton navigateTo={navigateTo} />}
 
       {!isDashboardView && (
         <footer className="bg-black py-12 border-t border-white/10">

@@ -5,6 +5,11 @@ export default function PaystackButton({ navigateTo }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigateTo('auth'); return; }
 
+    if (!window.PaystackPop) {
+      alert('Payment system still loading, please wait a moment and try again.');
+      return;
+    }
+
     const handler = window.PaystackPop.setup({
       key: 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
       email: user.email,
