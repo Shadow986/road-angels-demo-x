@@ -27,7 +27,7 @@ export default function MembershipSection({ navigateTo }) {
 
       const popup = new PaystackPop();
       popup.newTransaction({
-        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
         email: user.email,
         amount: 195 * 100, // kobo/cents
         currency: 'ZAR',
