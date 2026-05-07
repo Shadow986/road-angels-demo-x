@@ -10,6 +10,10 @@ export default function PaystackButton({ navigateTo }) {
       return;
     }
 
+    if (!window.PaystackPop.isInitialized) {
+      window.PaystackPop.initialize();
+    }
+
     const handler = window.PaystackPop.setup({
       key: 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
       email: user.email,
