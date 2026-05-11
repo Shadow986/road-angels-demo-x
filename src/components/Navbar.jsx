@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Menu, X, ChevronDown, FileText } from "lucide-react";
+import { User, Menu, X, ChevronDown, FileText, LogOut, LogIn } from "lucide-react";
+import { supabase } from "../lib/supabaseClient";
 
 export default function Navbar({ setPage, currentPage }) {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
+    return () => { window.removeEventListener("scroll", handleScroll); subscription.unsubscribe(); };
   }, []);
 
+  const handleLogout = async () => { await supabase.auth.signOut(); setPage('home'); };
   const handleNavigate = (id) => { setPage(id); setIsMobileMenuOpen(false); };
 
   const policies = [
@@ -75,12 +80,28 @@ export default function Navbar({ setPage, currentPage }) {
               ))}
             </div>
           </div>
+          {user ? (
+            <div className="flex items-center gap-4">
+              <button onClick={() => handleNavigate('user-dashboard')} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
+                <User size={14} /><span>Portal</span>
+              </button>
+              <button onClick={handleLogout} className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors">
+                <LogOut size={14} /><span>Logout</span>
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => handleNavigate('auth')} className="flex items-center gap-2 px-5 py-2 bg-[var(--color-halo-silver)] text-white hover:bg-white hover:text-black transition-all">
+              <LogIn size={14} /><span>Login</span>
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-5 lg:hidden z-[110]">
-          <button onClick={() => handleNavigate('auth')} className="text-gray-400 hover:text-white">
-            <User size={24} />
-          </button>
+          {user ? (
+            <button onClick={handleLogout} className="text-red-400 hover:text-red-300"><LogOut size={22} /></button>
+          ) : (
+            <button onClick={() => handleNavigate('auth')} className="text-gray-400 hover:text-white"><LogIn size={22} /></button>
+          )}
           <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-white">
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>

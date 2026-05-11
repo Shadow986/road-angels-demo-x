@@ -42,7 +42,7 @@ export default function UserDashboard({ onLogout }) {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
-  const [vehicleForm, setVehicleForm] = useState({ make: '', model: '', plate: '' });
+  const [vehicleForm, setVehicleForm] = useState({ make: '', model: '', plate: '', imageFile: null });
   const [profileForm, setProfileForm] = useState({ full_name: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,8 +69,18 @@ export default function UserDashboard({ onLogout }) {
     e.preventDefault();
     setIsSubmitting(true);
     const { data: { user } } = await supabase.auth.getUser();
-    const { error } = await supabase.from('vehicles').insert([{ ...vehicleForm, user_id: user.id }]);
-    if (!error) { setVehicleForm({ make: '', model: '', plate: '' }); setActiveModal(null); await fetchDashboardData(); }
+    let image_url = null;
+    if (vehicleForm.imageFile) {
+      const ext = vehicleForm.imageFile.name.split('.').pop();
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('car-images').upload(path, vehicleForm.imageFile);
+      if (!uploadError) {
+        const { data } = supabase.storage.from('car-images').getPublicUrl(path);
+        image_url = data.publicUrl;
+      }
+    }
+    const { error } = await supabase.from('vehicles').insert([{ make: vehicleForm.make, model: vehicleForm.model, plate: vehicleForm.plate, image_url, user_id: user.id }]);
+    if (!error) { setVehicleForm({ make: '', model: '', plate: '', imageFile: null }); setActiveModal(null); await fetchDashboardData(); }
     setIsSubmitting(false);
   };
 
@@ -134,13 +144,16 @@ export default function UserDashboard({ onLogout }) {
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
               {vehicles.map((car, i) => (
-                <div key={car.id || i} className="bg-gray-50 border border-black/5 p-6 group hover:border-[var(--color-halo-silver)]/30 transition-all cursor-default">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-[10px] font-bold text-[var(--color-halo-silver)] uppercase tracking-widest">{car.make}</span>
-                    <ShieldCheck size={14} className={car.is_verified ? "text-green-500" : "text-gray-300"} />
+              <div key={car.id || i} className="bg-gray-50 border border-black/5 group hover:border-[var(--color-halo-silver)]/30 transition-all cursor-default overflow-hidden">
+                  {car.image_url && <img src={car.image_url} alt={car.model} className="w-full h-32 object-cover" />}
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-[10px] font-bold text-[var(--color-halo-silver)] uppercase tracking-widest">{car.make}</span>
+                      <ShieldCheck size={14} className={car.is_verified ? "text-green-500" : "text-gray-300"} />
+                    </div>
+                    <div className="text-xl font-black italic uppercase text-black mb-1">{car.model}</div>
+                    <div className="text-[12px] font-mono text-gray-400 tracking-widest">{car.plate}</div>
                   </div>
-                  <div className="text-xl font-black italic uppercase text-black mb-1">{car.model}</div>
-                  <div className="text-[12px] font-mono text-gray-400 tracking-widest">{car.plate}</div>
                 </div>
               ))}
               <button onClick={() => setActiveModal('vehicle')} className="border-2 border-dashed border-black/10 p-6 flex flex-col items-center justify-center text-gray-300 hover:text-black hover:border-black/20 transition-all min-h-[140px] group">
@@ -184,6 +197,11 @@ export default function UserDashboard({ onLogout }) {
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Make (e.g. BMW)" value={vehicleForm.make} onChange={e => setVehicleForm({...vehicleForm, make: e.target.value})} />
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Model (e.g. M3 Competition)" value={vehicleForm.model} onChange={e => setVehicleForm({...vehicleForm, model: e.target.value})} />
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Registration Number" value={vehicleForm.plate} onChange={e => setVehicleForm({...vehicleForm, plate: e.target.value})} />
+            <div className="space-y-2">
+              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Car Image (optional)</label>
+              <input type="file" accept="image/*" className="w-full bg-gray-50 border border-black/10 p-3 text-sm text-black outline-none file:mr-4 file:py-1 file:px-3 file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-black file:text-white cursor-pointer"
+                onChange={e => setVehicleForm({...vehicleForm, imageFile: e.target.files[0]})} />
+            </div>
             <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-[var(--color-halo-silver)] text-white font-black uppercase text-[10px] tracking-widest hover:opacity-90 transition-all">
               {isSubmitting ? "Processing..." : "Submit Registration"}
             </button>
