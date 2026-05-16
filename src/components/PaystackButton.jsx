@@ -15,11 +15,10 @@ export default function PaystackButton({ navigateTo }) {
       window.PaystackPop.initialize();
     }
 
-    const onSuccess = async (transaction) => {
-      await supabase.functions.invoke('verify-payment', {
+    const onSuccess = (transaction) => {
+      supabase.functions.invoke('verify-payment', {
         body: { reference: transaction.reference, userId: user.id }
-      });
-      alert('Payment successful! You are now an active member.');
+      }).then(() => alert('Payment successful! You are now an active member.'));
     };
 
     const onClose = () => {};
