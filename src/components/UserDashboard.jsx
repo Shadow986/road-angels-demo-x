@@ -95,7 +95,7 @@ export default function UserDashboard({ onLogout }) {
 
   const requestConsultation = () => {
     const message = encodeURIComponent(`Hello Road Angels Team, I am ${profile?.full_name}. I would like to request a consultation regarding my membership.`);
-    window.open(`https://wa.me/27123456789?text=${message}`, '_blank');
+    window.open(`https://wa.me/27604807393?text=${message}`, '_blank');
   };
 
   if (loading) return (
