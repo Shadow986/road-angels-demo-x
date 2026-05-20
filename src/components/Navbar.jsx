@@ -114,19 +114,28 @@ export default function Navbar({ setPage, currentPage }) {
             initial={{ x: '100%' }} 
             animate={{ x: 0 }} 
             exit={{ x: '100%' }} 
-            className="fixed inset-0 z-[90] bg-white pt-32 px-10 flex flex-col gap-8"
+            className="fixed inset-0 z-[90] bg-black pt-32 px-10 flex flex-col gap-8"
           >
             {links.map((link) => (
               <button 
                 key={link.id} 
                 onClick={() => handleNavigate(link.id)} 
-                className={`text-3xl font-black uppercase text-left tracking-tighter italic ${currentPage === link.id ? 'text-[var(--color-halo-silver)]' : 'text-black/40 hover:text-black'}`}
+                className={`text-3xl font-black uppercase text-left tracking-tighter italic ${currentPage === link.id ? 'text-[var(--color-halo-silver)]' : 'text-white/40 hover:text-white'}`}
               >
                 {link.label}
               </button>
             ))}
-            <div className="h-px bg-black/10 my-4" />
-            <p className="text-[12px] text-gray-400 uppercase tracking-[0.4em] font-bold">Legal & Documentation</p>
+            <div className="h-px bg-white/10 my-2" />
+            {user ? (
+              <>
+                <button onClick={() => handleNavigate('user-dashboard')} className="text-3xl font-black uppercase text-left tracking-tighter italic text-white/40 hover:text-white">Portal</button>
+                <button onClick={handleLogout} className="text-3xl font-black uppercase text-left tracking-tighter italic text-red-400 hover:text-red-300">Logout</button>
+              </>
+            ) : (
+              <button onClick={() => handleNavigate('auth')} className="text-3xl font-black uppercase text-left tracking-tighter italic text-[var(--color-halo-silver)]">Login</button>
+            )}
+            <div className="h-px bg-white/10 my-2" />
+            <p className="text-[12px] text-gray-500 uppercase tracking-[0.4em] font-bold">Legal & Documentation</p>
             <div className="flex flex-col gap-6">
               {policies.map((p) => (
                 <a 
@@ -134,7 +143,7 @@ export default function Navbar({ setPage, currentPage }) {
                   href={p.link} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 text-xl font-bold text-black/60 uppercase italic hover:text-black"
+                  className="flex items-center gap-4 text-xl font-bold text-white/40 uppercase italic hover:text-white"
                 >
                   <FileText size={22} className="text-[var(--color-halo-silver)]" /> 
                   {p.name}
