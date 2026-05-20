@@ -165,10 +165,19 @@ function App() {
 
       {!isDashboardView && (
         <footer className="bg-black py-12 border-t border-white/10">
-          <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[8px] text-gray-500 uppercase tracking-[0.4em] font-bold">
-            <p>&copy; {new Date().getFullYear()} Road Angels RSA</p>
-            <p className="hover:text-white cursor-pointer transition-colors" onClick={() => navigateTo('admin-login')}>SECURE TERMINAL</p>
-            <p>Developed by Assend Creatives</p>
+          <div className="max-w-7xl mx-auto px-8 space-y-8">
+            <div className="flex justify-center gap-6">
+              <a href="https://facebook.com/share/1EvzvFTPJB/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-bold">Facebook</a>
+              <a href="https://tiktok.com/@road_angels.sa?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-bold">TikTok</a>
+              <a href="https://instagram.com/road_angels.sa" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-bold">Instagram</a>
+              <a href="https://wa.me/27604807393" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-bold">WhatsApp</a>
+              <a href="https://youtube.com/@roadangelsrsa?si=hIwWpRO3-6gRTbNU" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors text-[10px] uppercase tracking-widest font-bold">YouTube</a>
+            </div>
+            <div className="flex justify-between items-center text-[8px] text-gray-500 uppercase tracking-[0.4em] font-bold border-t border-white/10 pt-8">
+              <p>&copy; {new Date().getFullYear()} Road Angels RSA</p>
+              <p className="hover:text-white cursor-pointer transition-colors" onClick={() => navigateTo('admin-login')}>SECURE TERMINAL</p>
+              <p>Developed by Assend Creatives</p>
+            </div>
           </div>
         </footer>
       )}
