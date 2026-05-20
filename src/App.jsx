@@ -20,7 +20,7 @@ import MembershipPage from "./components/MembershipPage";
 import ContactPage from "./components/ContactPage";
 import AuthPage from "./components/AuthPage";
 
-// Secure Dashboards
+import YouTubeSection from "./components/YouTubeSection";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import AdminLogin from "./components/AdminLogin";
@@ -96,6 +96,7 @@ function App() {
               <DiagnosticTerminal />
               <ValidationSection />
               <AuthoritySection />
+              <YouTubeSection />
               <MembershipSection navigateTo={navigateTo} />
               <ServicesSection onViewAll={() => navigateTo('services')} />
             </motion.div>
