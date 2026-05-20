@@ -13,10 +13,11 @@ export default function YouTubeSection() {
         <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
           <iframe
             className="absolute inset-0 w-full h-full"
-            src="https://www.youtube.com/embed?listType=user_uploads&list=roadangelsrsa"
-            title="Road Angels RSA YouTube"
+            src="https://www.youtube.com/embed/fI7mumHoKEI?si=nO_qs2TVfOhn-Ivo"
+            title="YouTube video player"
             frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
         </div>
