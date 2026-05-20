@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Car, Settings, CreditCard, LogOut, MessageSquare, 
-  Award, Calendar, ChevronRight, ShieldCheck, Loader2, X, Plus, Clock
+  Award, Calendar, ChevronRight, ShieldCheck, Loader2, X, Plus, Clock, Home
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -37,7 +37,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-export default function UserDashboard({ onLogout }) {
+export default function UserDashboard({ onLogout, navigateTo }) {
   const [profile, setProfile] = useState(null);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -121,6 +121,9 @@ export default function UserDashboard({ onLogout }) {
             </div>
           </div>
           <div className="flex gap-4">
+            <button onClick={() => navigateTo('home')} className="px-6 py-3 border border-black/10 text-black text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all flex items-center gap-2">
+              <Home size={14} /> Home
+            </button>
             <button onClick={requestConsultation} className="px-6 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all flex items-center gap-2">
               <MessageSquare size={14} /> Request Consultation
             </button>

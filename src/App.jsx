@@ -146,7 +146,7 @@ function App() {
           {/* --- SECURE DASHBOARDS --- */}
           {currentPage === 'user-dashboard' && (
             <motion.div key="user-dash" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <UserDashboard onLogout={handleLogout} />
+              <UserDashboard onLogout={handleLogout} navigateTo={navigateTo} />
             </motion.div>
           )}
 
