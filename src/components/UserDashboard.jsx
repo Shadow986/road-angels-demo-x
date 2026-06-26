@@ -232,7 +232,6 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between text-[10px] uppercase text-gray-400"><span>Renewal Date</span><span className="text-black">01 April 2026</span></div>
-              <div className="flex justify-between text-[10px] uppercase text-gray-400"><span>Payment Method</span><span className="text-black">Debit Order (Netcash)</span></div>
             </div>
             <button onClick={requestConsultation} className="w-full py-3 border border-black/10 text-[10px] font-black uppercase tracking-widest text-black hover:bg-gray-50 transition-all">Change Plan</button>
           </div>
