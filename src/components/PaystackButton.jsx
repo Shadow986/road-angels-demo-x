@@ -24,7 +24,7 @@ export default function PaystackButton({ navigateTo }) {
     const onClose = () => {};
 
     window.PaystackPop.setup({
-      key: 'pk_test_8c87b22a1c5730e895731bc18a3decaddd56b148',
+      key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
       email: user.email,
       amount: 19500,
       currency: 'ZAR',
