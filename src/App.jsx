@@ -35,22 +35,27 @@ function App() {
     // Initial Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchUserRole(session.user.id);
+      if (session) {
+        fetchUserRole(session.user.id);
+        // If user lands on auth page while already logged in, send them to dashboard
+        setCurrentPage((prev) => prev === 'auth' ? 'user-dashboard' : prev);
+      }
     });
 
-    // Auth Listener
+    // Auth Listener - runs once on mount only
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
         fetchUserRole(session.user.id);
-        if (currentPage === 'auth') setCurrentPage('user-dashboard');
+        // Redirect away from auth page if already logged in
+        setCurrentPage((prev) => prev === 'auth' ? 'user-dashboard' : prev);
       } else {
         setUserRole('user');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [currentPage]);
+  }, []); // empty deps — subscribe once, not on every page change
 
   // Helper to fetch role for dashboard routing
   async function fetchUserRole(userId) {
@@ -131,7 +136,7 @@ function App() {
           )}
 
           {/* --- AUTH GATEWAYS --- */}
-          {currentPage === 'auth' && (
+          {currentPage === 'auth' && !session && (
             <motion.div key="auth" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <AuthPage onBack={() => navigateTo('home')} onLoginSuccess={() => navigateTo('user-dashboard')} />
             </motion.div>

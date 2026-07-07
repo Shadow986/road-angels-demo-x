@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabaseClient";
 export default function MembershipSection({ navigateTo }) {
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: string }
 
   useEffect(() => {
     async function checkStatus() {
@@ -19,17 +20,15 @@ export default function MembershipSection({ navigateTo }) {
   }, []);
 
   const handleJoin = async () => {
-    alert('Button clicked!');
+    setStatusMsg(null);
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('user:', user);
       if (!user) { navigateTo('auth'); setLoading(false); return; }
 
       const PaystackPop = window.PaystackPop;
-      console.log('PaystackPop:', PaystackPop);
       if (!PaystackPop) {
-        alert('Payment system not loaded. Please refresh and try again.');
+        setStatusMsg({ type: 'error', text: 'Payment system not loaded. Please refresh and try again.' });
         setLoading(false);
         return;
       }
@@ -47,18 +46,16 @@ export default function MembershipSection({ navigateTo }) {
             });
             if (error) throw error;
             setIsActive(true);
-            alert('Payment successful! You are now an active member.');
+            setStatusMsg({ type: 'success', text: 'Payment successful! You are now an active member.' });
           } catch (err) {
-            alert('Payment received but verification failed. Contact support with ref: ' + transaction.reference);
+            setStatusMsg({ type: 'error', text: 'Payment received but verification failed. Contact support with ref: ' + transaction.reference });
           }
         },
         onClose: () => setLoading(false),
       });
-      console.log('handler:', handler);
       handler.openIframe();
     } catch (err) {
-      console.error("Payment initialization failed:", err);
-      alert("Could not start payment: " + err.message);
+      setStatusMsg({ type: 'error', text: 'Could not start payment: ' + err.message });
       setLoading(false);
     }
   };
@@ -92,6 +89,12 @@ export default function MembershipSection({ navigateTo }) {
             <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
+
+        {statusMsg && (
+          <div className={`mb-8 p-4 text-[10px] font-bold uppercase tracking-wide border ${statusMsg.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+            {statusMsg.text}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-8">
           {tiers.map((tier, i) => (
