@@ -47,7 +47,14 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
         setView("register-done");
       }
     } catch (err) {
-      setError(err.message);
+      const msg = err.message || "";
+      if (msg.toLowerCase().includes("invalid login credentials") || msg.toLowerCase().includes("invalid credentials")) {
+        setError("Invalid email or password. If you just registered, please confirm your email first before signing in.");
+      } else if (msg.toLowerCase().includes("email not confirmed")) {
+        setError("Please confirm your email address before signing in. Check your inbox for the confirmation link.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
