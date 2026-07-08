@@ -1,10 +1,34 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Search, HelpCircle } from "lucide-react";
+import { Activity, Search, HelpCircle, X, Loader2 } from "lucide-react";
 
 export default function DiagnosticTerminal() {
   const [mode, setMode] = useState("code");
   const [result, setResult] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [formData, setFormData] = useState({ name: "", phone: "", car: "", issue: "", faultCode: "" });
+  const [submitting, setSubmitting] = useState(false);
+
+  const updateField = (field) => (e) => setFormData((p) => ({ ...p, [field]: e.target.value }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    const msg = encodeURIComponent(
+      `*Diagnostic Assistance Request*\n\n` +
+      `Name: ${formData.name}\n` +
+      `Phone: ${formData.phone}\n` +
+      `Vehicle: ${formData.car}\n` +
+      `Fault Code: ${formData.faultCode || "None"}\n` +
+      `Issue / Symptoms: ${formData.issue}`
+    );
+    window.open(`https://wa.me/27604807393?text=${msg}`, "_blank");
+    setSubmitting(false);
+    setShowForm(false);
+    setFormData({ name: "", phone: "", car: "", issue: "", faultCode: "" });
+  };
+
+  const inputClass = "w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400";
 
   const faultDatabase = {
     "P17BF": { symptom: "Hydraulic Pump Play Protection", feeling: "Car suddenly loses drive; flashing spanner icon.", fix: "Reinforced Accumulator Housing + Calibration." },
@@ -111,11 +135,87 @@ export default function DiagnosticTerminal() {
               </div>
             </div>
           </div>
-          <button className="w-full py-6 bg-[var(--color-halo-silver)] text-white font-black uppercase text-[11px] tracking-[0.4em] hover:bg-black transition-all">
+          <button 
+            onClick={() => setShowForm(true)}
+            className="w-full py-6 bg-[var(--color-halo-silver)] text-white font-black uppercase text-[11px] tracking-[0.4em] hover:bg-black transition-all">
             Request Diagnostic Assistance
           </button>
         </div>
       </div>
+
+      {/* ── Diagnostic Request Modal ── */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="bg-white border border-black/10 w-full max-w-lg p-8 relative shadow-2xl"
+            >
+              <button
+                onClick={() => setShowForm(false)}
+                className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="mb-6 border-b border-black/5 pb-4">
+                <h2 className="text-2xl font-black italic uppercase tracking-tighter text-black">Request Diagnostic</h2>
+                <p className="text-[9px] uppercase tracking-widest text-gray-400 mt-1">Our engineers will contact you directly via WhatsApp</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Full Name *</label>
+                    <input required className={inputClass} placeholder="Your Name" value={formData.name} onChange={updateField("name")} />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Phone Number *</label>
+                    <input required className={inputClass} placeholder="e.g. 082 123 4567" value={formData.phone} onChange={updateField("phone")} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Vehicle (Make, Model & Year) *</label>
+                  <input required className={inputClass} placeholder="e.g. VW Golf 7 GTI 2018" value={formData.car} onChange={updateField("car")} />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Fault Code (if known)</label>
+                  <input className={inputClass} placeholder="e.g. P17BF (leave blank if unsure)" value={formData.faultCode} onChange={updateField("faultCode")} />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Describe the Issue *</label>
+                  <textarea
+                    required
+                    rows={4}
+                    className={inputClass}
+                    placeholder="Describe what the car is doing — e.g. jerky shifts, stuck in gear, flashing spanner..."
+                    value={formData.issue}
+                    onChange={updateField("issue")}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-60"
+                >
+                  {submitting ? <Loader2 className="animate-spin" size={14} /> : "Send via WhatsApp"}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
