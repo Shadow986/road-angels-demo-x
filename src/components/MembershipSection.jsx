@@ -19,7 +19,7 @@ export default function MembershipSection({ navigateTo }) {
     checkStatus();
   }, []);
 
-  const handleJoin = async () => {
+  const handleJoin = async (amount = 195) => {
     setStatusMsg(null);
     setLoading(true);
     try {
@@ -36,7 +36,7 @@ export default function MembershipSection({ navigateTo }) {
       const handler = PaystackPop.setup({
         key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
         email: user.email,
-        amount: 195 * 100,
+        amount: amount * 100,
         currency: 'ZAR',
         metadata: { userId: user.id },
         callback: async (transaction) => {
@@ -130,6 +130,18 @@ export default function MembershipSection({ navigateTo }) {
             </motion.div>
           ))}
         </div>
+
+        {/* R1 Test Button */}
+        <div className="mt-10 flex justify-center">
+          <button
+            onClick={() => handleJoin(1)}
+            disabled={isActive || loading}
+            className="px-8 py-3 border border-dashed border-black/20 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black hover:border-black/40 transition-all disabled:opacity-40"
+          >
+            🧪 R1 Test Subscription (Testing Only)
+          </button>
+        </div>
+
       </div>
     </section>
   );
