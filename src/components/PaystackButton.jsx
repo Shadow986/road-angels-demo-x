@@ -18,7 +18,7 @@ export default function PaystackButton({ navigateTo }) {
     window.PaystackPop.setup({
       key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
       email: user.email,
-      amount: 19500,
+      amount: 100,
       currency: 'ZAR',
       metadata: { userId: user.id },
       callback: (transaction) => {
@@ -58,7 +58,7 @@ export default function PaystackButton({ navigateTo }) {
           cursor: 'pointer', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
         }}
       >
-        Subscribe R195/m
+        Subscribe R1 (Test)
       </button>
     </>
   );
