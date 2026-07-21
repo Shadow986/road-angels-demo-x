@@ -10,14 +10,14 @@ function getBadgeFromMonths(months) {
   if (months >= 24) return { name: 'Gold', color: 'text-yellow-500' };
   if (months >= 12) return { name: 'Silver', color: 'text-gray-400' };
   if (months >= 4)  return { name: 'Bronze', color: 'text-orange-400' };
-  return { name: 'Aspirant', color: 'text-gray-500' };
+  return { name: 'Bronze', color: 'text-orange-400' };
 }
 
 function getNextBadgeInfo(months) {
   if (months >= 24) return 'Gold — Max Tier Reached';
   if (months >= 12) return `Next: Gold at 24 Months`;
   if (months >= 4)  return `Next: Silver at 12 Months`;
-  return `Next: Bronze at 4 Months`;
+  return `Bronze — Silver at 12 Months`;
 }
 
 const StatCard = ({ label, value, icon: Icon, subtext, loading, onClick }) => (

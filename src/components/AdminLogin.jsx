@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabaseClient';
 
 // --- Edit Modal Component ---
 const UserEditModal = ({ isOpen, onClose, user, onSave, isSaving }) => {
-  const [rank, setRank] = useState(user?.membership_rank || 'Aspirant');
+  const [rank, setRank] = useState(user?.membership_rank || 'Bronze');
 
   if (!isOpen) return null;
 
@@ -28,7 +28,7 @@ const UserEditModal = ({ isOpen, onClose, user, onSave, isSaving }) => {
               value={rank}
               onChange={(e) => setRank(e.target.value)}
             >
-              <option value="Aspirant" className="bg-white">Aspirant (Base)</option>
+              <option value="Bronze" className="bg-white">Bronze (Base)</option>
               <option value="Sentinel" className="bg-white">Sentinel (Tier 2)</option>
               <option value="Vanguard" className="bg-white">Vanguard (Tier 3)</option>
               <option value="Elite" className="bg-white">Elite (Tier 4)</option>
@@ -156,7 +156,7 @@ export default function AdminDashboard({ onLogout }) {
                     </td>
                     <td className="p-6">
                       <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 border border-black/10 text-black">
-                        {u.membership_rank || 'Aspirant'}
+                        {u.membership_rank || 'Bronze'}
                       </span>
                     </td>
                     <td className="p-6 text-[12px] font-mono text-gray-500">{u.vehicles?.length || 0}</td>

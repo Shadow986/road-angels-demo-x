@@ -2,7 +2,7 @@
 alter table profiles add column if not exists full_name text;
 
 -- Add membership_rank column used by the dashboard
-alter table profiles add column if not exists membership_rank text default 'Aspirant';
+alter table profiles add column if not exists membership_rank text default 'Bronze';
 
 -- Update the trigger so it also captures full_name from signup metadata
 create or replace function public.handle_new_user()
