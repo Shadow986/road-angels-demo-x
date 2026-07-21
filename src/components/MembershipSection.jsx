@@ -34,7 +34,7 @@ export default function MembershipSection({ navigateTo }) {
       }
 
       const handler = PaystackPop.setup({
-        key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
+        key: 'pk_live_005c9233b6f580f6e2aef5f4d549f8c24b50ae19',
         email: user.email,
         amount: amount * 100,
         currency: 'ZAR',
@@ -129,17 +129,6 @@ export default function MembershipSection({ navigateTo }) {
               </button>
             </motion.div>
           ))}
-        </div>
-
-        {/* R1 Test Button */}
-        <div className="mt-10 flex justify-center">
-          <button
-            onClick={() => handleJoin(1)}
-            disabled={isActive || loading}
-            className="px-8 py-3 border border-dashed border-black/20 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black hover:border-black/40 transition-all disabled:opacity-40"
-          >
-            🧪 R1 Test Subscription (Testing Only)
-          </button>
         </div>
 
       </div>
