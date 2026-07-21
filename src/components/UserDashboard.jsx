@@ -5,8 +5,27 @@ import {
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-const StatCard = ({ label, value, icon: Icon, subtext, loading }) => (
-  <div className="bg-gray-50 border border-black/5 p-6 rounded-sm">
+// Calculate badge tier based on number of confirmed payments
+function getBadgeFromMonths(months) {
+  if (months >= 24) return { name: 'Gold', color: 'text-yellow-500' };
+  if (months >= 12) return { name: 'Silver', color: 'text-gray-400' };
+  if (months >= 4)  return { name: 'Bronze', color: 'text-orange-400' };
+  return { name: 'Aspirant', color: 'text-gray-500' };
+}
+
+function getNextBadgeInfo(months) {
+  if (months >= 24) return 'Gold — Max Tier Reached';
+  if (months >= 12) return `Next: Gold at 24 Months`;
+  if (months >= 4)  return `Next: Silver at 12 Months`;
+  return `Next: Bronze at 4 Months`;
+}
+
+const StatCard = ({ label, value, icon: Icon, subtext, loading, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`bg-gray-50 border border-black/5 p-6 rounded-sm transition-all
+      ${onClick ? 'cursor-pointer hover:border-[var(--color-halo-silver)]/40 hover:shadow-md hover:bg-white' : ''}`}
+  >
     <div className="flex justify-between items-start mb-4">
       <div className="p-2 bg-[var(--color-halo-silver)]/10 text-[var(--color-halo-silver)]">
         <Icon size={18} />
@@ -19,6 +38,9 @@ const StatCard = ({ label, value, icon: Icon, subtext, loading }) => (
       <div className="text-2xl font-black italic uppercase text-black">{value}</div>
     )}
     <div className="text-[9px] text-gray-400 uppercase tracking-tighter mt-1">{subtext}</div>
+    {onClick && (
+      <div className="text-[8px] text-[var(--color-halo-silver)] uppercase tracking-widest mt-2 font-black">Tap to view →</div>
+    )}
   </div>
 );
 
@@ -40,11 +62,16 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 export default function UserDashboard({ onLogout, navigateTo }) {
   const [profile, setProfile] = useState(null);
   const [vehicles, setVehicles] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
   const [vehicleForm, setVehicleForm] = useState({ make: '', model: '', plate: '', imageFile: null });
   const [profileForm, setProfileForm] = useState({ full_name: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Payment detail form state (collected before Paystack opens)
+  const [paymentDetails, setPaymentDetails] = useState({ name: '', phone: '' });
+  const [payLoading, setPayLoading] = useState(false);
+  const [payMsg, setPayMsg] = useState(null);
 
   useEffect(() => { fetchDashboardData(); }, []);
 
@@ -54,9 +81,16 @@ export default function UserDashboard({ onLogout, navigateTo }) {
       if (user) {
         const { data: prof } = await supabase.from('profiles').select('*').eq('id', user.id).single();
         const { data: vehs } = await supabase.from('vehicles').select('*').eq('user_id', user.id);
+        const { data: pays } = await supabase
+          .from('payments')
+          .select('id, amount, reference, created_at, status')
+          .eq('user_id', user.id)
+          .eq('status', 'success')
+          .order('created_at', { ascending: false });
         setProfile(prof);
         setProfileForm({ full_name: prof?.full_name || '' });
         if (vehs) setVehicles(vehs);
+        if (pays) setPayments(pays);
       }
     } catch (err) {
       console.error("Dashboard Load Error:", err);
@@ -98,6 +132,54 @@ export default function UserDashboard({ onLogout, navigateTo }) {
     window.open(`https://wa.me/27604807393?text=${message}`, '_blank');
   };
 
+  // Opens Paystack after collecting user details in our modal
+  const handlePayNow = async (e) => {
+    e.preventDefault();
+    if (!paymentDetails.name.trim() || !paymentDetails.phone.trim()) return;
+    setPayLoading(true);
+    setPayMsg(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { navigateTo('auth'); return; }
+      const PaystackPop = window.PaystackPop;
+      if (!PaystackPop) {
+        setPayMsg({ type: 'error', text: 'Payment system not loaded. Refresh and try again.' });
+        setPayLoading(false);
+        return;
+      }
+      setActiveModal(null); // close details modal
+      const handler = PaystackPop.setup({
+        key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
+        email: user.email,
+        amount: 19500,
+        currency: 'ZAR',
+        metadata: {
+          userId: user.id,
+          name: paymentDetails.name,
+          phone: paymentDetails.phone,
+        },
+        callback: async (transaction) => {
+          try {
+            const { error } = await supabase.functions.invoke('verify-payment', {
+              body: { reference: transaction.reference, userId: user.id }
+            });
+            if (error) throw error;
+            await fetchDashboardData();
+            setPayMsg({ type: 'success', text: 'Payment successful! Your membership is now active.' });
+            setActiveModal('sub');
+          } catch (err) {
+            setPayMsg({ type: 'error', text: 'Payment received but verification failed. Ref: ' + transaction.reference });
+          }
+        },
+        onClose: () => setPayLoading(false),
+      });
+      handler.openIframe();
+    } catch (err) {
+      setPayMsg({ type: 'error', text: 'Could not start payment: ' + err.message });
+      setPayLoading(false);
+    }
+  };
+
   if (loading) return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
       <Loader2 className="text-[var(--color-halo-silver)] animate-spin" size={40} />
@@ -134,10 +216,47 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6 mb-12">
-          <StatCard label="Current Badge" value={profile?.membership_rank || 'Aspirant'} icon={Award} subtext={profile?.is_active_member ? "Active Member Status" : "Pending Verification"} />
-          <StatCard label="Loyalty" value="1 Month" icon={Calendar} subtext="Next Badge: 6 Months" />
-          <StatCard label="Coverage" value={vehicles.length} icon={Car} subtext="Active Fleet" />
-          <StatCard label="Payment" value={profile?.is_active_member ? "R195.00" : "R0.00"} icon={CreditCard} subtext="Monthly Subscription" />
+          {(() => {
+            const monthsPaid = payments.length;
+            const badge = getBadgeFromMonths(monthsPaid);
+            const nextBadge = getNextBadgeInfo(monthsPaid);
+            return (
+              <>
+                <StatCard
+                  label="Current Badge"
+                  value={<span className={badge.color}>{badge.name}</span>}
+                  icon={Award}
+                  subtext={profile?.is_active_member ? "Active Member Status" : "Pending Verification"}
+                  loading={loading}
+                  onClick={() => setActiveModal('sub')}
+                />
+                <StatCard
+                  label="Loyalty"
+                  value={`${monthsPaid} Month${monthsPaid !== 1 ? 's' : ''}`}
+                  icon={Calendar}
+                  subtext={nextBadge}
+                  loading={loading}
+                  onClick={() => setActiveModal('history')}
+                />
+                <StatCard
+                  label="Coverage"
+                  value={vehicles.length}
+                  icon={Car}
+                  subtext="Active Fleet"
+                  loading={loading}
+                  onClick={() => setActiveModal('vehicle')}
+                />
+                <StatCard
+                  label="Payment"
+                  value={profile?.is_active_member ? "R195.00" : "R0.00"}
+                  icon={CreditCard}
+                  subtext={profile?.is_active_member ? "Monthly Subscription" : "No Active Plan"}
+                  loading={loading}
+                  onClick={() => setActiveModal('sub')}
+                />
+              </>
+            );
+          })()}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
@@ -213,28 +332,107 @@ export default function UserDashboard({ onLogout, navigateTo }) {
 
         <Modal isOpen={activeModal === 'history'} onClose={() => setActiveModal(null)} title="Transaction History">
           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-            <div className="flex items-center justify-between p-4 bg-gray-50 border border-black/5">
-              <div className="flex items-center gap-3">
-                <Clock size={14} className="text-gray-400" />
-                <div className="text-[10px] uppercase font-bold text-black">Monthly Subscription</div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-400">R195.00</div>
-            </div>
-            <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest mt-4">No older transactions found</p>
+            {payments.length === 0 ? (
+              <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest mt-4">No payments found</p>
+            ) : (
+              payments.map((p) => (
+                <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 border border-black/5">
+                  <div className="flex items-center gap-3">
+                    <Clock size={14} className="text-gray-400" />
+                    <div>
+                      <div className="text-[10px] uppercase font-bold text-black">Monthly Subscription</div>
+                      <div className="text-[9px] text-gray-400 font-mono mt-0.5">{new Date(p.created_at).toLocaleDateString('en-ZA')}</div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] font-mono text-gray-400">R{(p.amount / 100).toFixed(2)}</div>
+                </div>
+              ))
+            )}
           </div>
         </Modal>
 
         <Modal isOpen={activeModal === 'sub'} onClose={() => setActiveModal(null)} title="Membership Management">
           <div className="space-y-6">
+            {payMsg && (
+              <div className={`p-3 text-[10px] font-bold uppercase tracking-wide border ${payMsg.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                {payMsg.text}
+              </div>
+            )}
             <div className="p-6 bg-[var(--color-halo-silver)]/5 border border-[var(--color-halo-silver)]/20">
-              <div className="text-[9px] text-[var(--color-halo-silver)] uppercase font-black mb-1">Active Plan</div>
-              <div className="text-xl font-black text-black italic uppercase tracking-tighter">Standard Road Angel</div>
+              <div className="text-[9px] text-[var(--color-halo-silver)] uppercase font-black mb-1">Current Badge</div>
+              <div className={`text-xl font-black italic uppercase tracking-tighter ${getBadgeFromMonths(payments.length).color}`}>
+                {getBadgeFromMonths(payments.length).name} Road Angel
+              </div>
+              <div className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">
+                {payments.length} month{payments.length !== 1 ? 's' : ''} paid · {getNextBadgeInfo(payments.length)}
+              </div>
             </div>
             <div className="space-y-3">
-              <div className="flex justify-between text-[10px] uppercase text-gray-400"><span>Renewal Date</span><span className="text-black">01 April 2026</span></div>
+              <div className="flex justify-between text-[10px] uppercase text-gray-400">
+                <span>Status</span>
+                <span className={profile?.is_active_member ? 'text-green-600 font-black' : 'text-red-500 font-black'}>
+                  {profile?.is_active_member ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="flex justify-between text-[10px] uppercase text-gray-400">
+                <span>Monthly Fee</span><span className="text-black">R195.00</span>
+              </div>
             </div>
+            {!profile?.is_active_member && (
+              <button
+                onClick={() => { setActiveModal('paydetails'); setPayMsg(null); }}
+                className="w-full py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all"
+              >
+                Activate Membership — R195/m
+              </button>
+            )}
             <button onClick={requestConsultation} className="w-full py-3 border border-black/10 text-[10px] font-black uppercase tracking-widest text-black hover:bg-gray-50 transition-all">Change Plan</button>
           </div>
+        </Modal>
+
+        {/* Payment Details Modal — collects name + phone before Paystack */}
+        <Modal isOpen={activeModal === 'paydetails'} onClose={() => setActiveModal(null)} title="Payment Details">
+          <form onSubmit={handlePayNow} className="space-y-5">
+            <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed">
+              Please confirm your details before proceeding to payment.
+            </p>
+            <div className="space-y-2">
+              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
+              <input
+                required
+                className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none transition-colors"
+                placeholder="e.g. Sipho Dlamini"
+                value={paymentDetails.name}
+                onChange={e => setPaymentDetails({ ...paymentDetails, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
+              <input
+                required
+                type="tel"
+                className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none transition-colors"
+                placeholder="e.g. 0712345678"
+                value={paymentDetails.phone}
+                onChange={e => setPaymentDetails({ ...paymentDetails, phone: e.target.value })}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
+              <span>Amount Due</span><span className="text-black font-black">R195.00 / month</span>
+            </div>
+            {payMsg && (
+              <div className={`p-3 text-[10px] font-bold uppercase tracking-wide border ${payMsg.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+                {payMsg.text}
+              </div>
+            )}
+            <button
+              disabled={payLoading}
+              type="submit"
+              className="w-full py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:bg-[var(--color-halo-silver)] transition-all disabled:opacity-50"
+            >
+              {payLoading ? 'Processing...' : 'Proceed to Payment'}
+            </button>
+          </form>
         </Modal>
       </div>
     </div>

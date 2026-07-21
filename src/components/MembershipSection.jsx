@@ -1,11 +1,76 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Trophy, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Trophy, ChevronRight, CheckCircle2, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
+
+// Simple inline modal for payment details
+function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white border border-black/10 w-full max-w-md p-8 relative shadow-2xl">
+        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+          <X size={20} />
+        </button>
+        <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-2 border-b border-black/5 pb-4">
+          Confirm Your Details
+        </h2>
+        <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
+          We need these details before processing your R195/month subscription.
+        </p>
+        <form
+          onSubmit={e => { e.preventDefault(); onSubmit({ name, phone }); }}
+          className="space-y-5"
+        >
+          <div className="space-y-2">
+            <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
+            <input
+              required
+              className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors"
+              placeholder="e.g. Sipho Dlamini"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
+            <input
+              required
+              type="tel"
+              className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors"
+              placeholder="e.g. 0712345678"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
+            <span>Amount Due</span><span className="text-black font-black">R195.00 / month</span>
+          </div>
+          {payMsg && (
+            <div className={`p-3 text-[10px] font-bold uppercase tracking-wide border ${payMsg.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
+              {payMsg.text}
+            </div>
+          )}
+          <button
+            disabled={loading}
+            type="submit"
+            className="w-full py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:opacity-80 transition-all disabled:opacity-50"
+          >
+            {loading ? 'Processing...' : 'Proceed to Payment'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 export default function MembershipSection({ navigateTo }) {
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [pendingAmount, setPendingAmount] = useState(195);
   const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: string }
 
   useEffect(() => {
@@ -19,9 +84,19 @@ export default function MembershipSection({ navigateTo }) {
     checkStatus();
   }, []);
 
+  // Called when user clicks Subscribe — first check auth, then show details modal
   const handleJoin = async (amount = 195) => {
     setStatusMsg(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { navigateTo('auth'); return; }
+    setPendingAmount(amount);
+    setShowPayModal(true);
+  };
+
+  // Called after user fills in name + phone in the details modal
+  const handlePaySubmit = async ({ name, phone }) => {
     setLoading(true);
+    setStatusMsg(null);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigateTo('auth'); setLoading(false); return; }
@@ -33,12 +108,14 @@ export default function MembershipSection({ navigateTo }) {
         return;
       }
 
+      setShowPayModal(false);
+
       const handler = PaystackPop.setup({
         key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
         email: user.email,
-        amount: amount * 100,
+        amount: pendingAmount * 100,
         currency: 'ZAR',
-        metadata: { userId: user.id },
+        metadata: { userId: user.id, name, phone },
         callback: async (transaction) => {
           try {
             const { error } = await supabase.functions.invoke('verify-payment', {
@@ -50,6 +127,7 @@ export default function MembershipSection({ navigateTo }) {
           } catch (err) {
             setStatusMsg({ type: 'error', text: 'Payment received but verification failed. Contact support with ref: ' + transaction.reference });
           }
+          setLoading(false);
         },
         onClose: () => setLoading(false),
       });
@@ -68,6 +146,13 @@ export default function MembershipSection({ navigateTo }) {
 
   return (
     <section className="py-24 bg-white text-black px-8 md:px-20 border-t border-black/5 relative overflow-hidden">
+      <PayDetailsModal
+        isOpen={showPayModal}
+        onClose={() => { setShowPayModal(false); setLoading(false); }}
+        onSubmit={handlePaySubmit}
+        loading={loading}
+        payMsg={statusMsg}
+      />
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-xl">
