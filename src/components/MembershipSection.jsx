@@ -111,7 +111,7 @@ export default function MembershipSection({ navigateTo }) {
       setShowPayModal(false);
 
       const handler = PaystackPop.setup({
-        key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
+        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
         email: user.email,
         amount: pendingAmount * 100,
         currency: 'ZAR',
