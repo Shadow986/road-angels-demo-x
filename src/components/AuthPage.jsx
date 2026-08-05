@@ -21,7 +21,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const [view, setView] = useState("login"); // login | register | forgot | register-done | forgot-done
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ email: "", password: "", fullName: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", phone: "" });
 
   const updateField = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -38,12 +38,16 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
         if (error) throw error;
         onLoginSuccess();
       } else if (view === "register") {
-        const { error } = await supabase.auth.signUp({ 
+        const { data, error } = await supabase.auth.signUp({ 
           email: formData.email, 
           password: formData.password,
           options: { data: { full_name: formData.fullName } }
         });
         if (error) throw error;
+        // Save phone to profile
+        if (data?.user) {
+          await supabase.from('profiles').upsert({ id: data.user.id, full_name: formData.fullName, phone: formData.phone });
+        }
         setView("register-done");
       }
     } catch (err) {
@@ -80,7 +84,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const switchView = (v) => {
     setView(v);
     setError("");
-    setFormData({ email: "", password: "", fullName: "" });
+    setFormData({ email: "", password: "", fullName: "", phone: "" });
   };
 
   const titles = {
@@ -149,6 +153,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
               <motion.form key="register" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6" onSubmit={handleAuth}>
                 {error && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-red-50 border border-red-200 p-3">{error}</p>}
                 <InputField label="Full Name" type="text" placeholder="Driver Name" value={formData.fullName} onChange={updateField("fullName")} />
+                <InputField label="Phone Number" type="tel" placeholder="e.g. 0712345678" value={formData.phone} onChange={updateField("phone")} />
                 <InputField label="Email Address" type="email" placeholder="email@example.com" value={formData.email} onChange={updateField("email")} />
                 <InputField label="Password" type="password" placeholder="Create Access Key (min 8 chars)" value={formData.password} onChange={updateField("password")} />
                 <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-60">

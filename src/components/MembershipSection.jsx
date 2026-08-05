@@ -3,11 +3,40 @@ import { motion } from "framer-motion";
 import { Trophy, ChevronRight, CheckCircle2, X } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
+// Validation helpers
+const NAME_REGEX = /^[a-zA-Z\s'-]{2,}$/;
+const PHONE_REGEX = /^(?:\+27|0)[6-8][0-9]{8}$/;
+
 // Simple inline modal for payment details
 function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [errors, setErrors] = useState({});
+
   if (!isOpen) return null;
+
+  const validate = () => {
+    const errs = {};
+    if (!NAME_REGEX.test(name.trim())) {
+      errs.name = 'Enter a valid full name (letters only, at least 2 characters)';
+    }
+    if (!PHONE_REGEX.test(phone.trim())) {
+      errs.phone = 'Enter a valid SA number (e.g. 0712345678 or +27712345678)';
+    }
+    return errs;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    setErrors({});
+    onSubmit({ name: name.trim(), phone: phone.trim() });
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
       <div className="bg-white border border-black/10 w-full max-w-md p-8 relative shadow-2xl">
@@ -20,30 +49,29 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
         <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
           We need these details before processing your R195/month subscription.
         </p>
-        <form
-          onSubmit={e => { e.preventDefault(); onSubmit({ name, phone }); }}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
             <input
               required
-              className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors"
+              className={`w-full bg-gray-50 border p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors ${errors.name ? 'border-red-400' : 'border-black/10'}`}
               placeholder="e.g. Sipho Dlamini"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={e => { setName(e.target.value); setErrors(prev => ({ ...prev, name: null })); }}
             />
+            {errors.name && <p className="text-[9px] text-red-500 uppercase tracking-wide">{errors.name}</p>}
           </div>
           <div className="space-y-2">
             <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
             <input
               required
               type="tel"
-              className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors"
+              className={`w-full bg-gray-50 border p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors ${errors.phone ? 'border-red-400' : 'border-black/10'}`}
               placeholder="e.g. 0712345678"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={e => { setPhone(e.target.value); setErrors(prev => ({ ...prev, phone: null })); }}
             />
+            {errors.phone && <p className="text-[9px] text-red-500 uppercase tracking-wide">{errors.phone}</p>}
           </div>
           <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
             <span>Amount Due</span><span className="text-black font-black">R195.00 / month</span>
@@ -85,11 +113,11 @@ export default function MembershipSection({ navigateTo }) {
   }, []);
 
   // Called when user clicks Subscribe — first check auth, then show details modal
-  const handleJoin = async (amount = 195) => {
+  const handleJoin = async () => {
     setStatusMsg(null);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigateTo('auth'); return; }
-    setPendingAmount(amount);
+    setPendingAmount(195);
     setShowPayModal(true);
   };
 
@@ -100,6 +128,29 @@ export default function MembershipSection({ navigateTo }) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigateTo('auth'); setLoading(false); return; }
+
+      // Verify name and phone match the registered profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, phone')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        setStatusMsg({ type: 'error', text: 'Could not load your profile. Please try again.' });
+        setLoading(false);
+        return;
+      }
+
+      const nameMatch = profile.full_name?.trim().toLowerCase() === name.trim().toLowerCase();
+      const phoneMatch = profile.phone?.trim().replace(/\s/g, '') === phone.trim().replace(/\s/g, '');
+
+      if (!nameMatch || !phoneMatch) {
+        setStatusMsg({ type: 'error', text: 'Name or phone number does not match your registered account. Please use the details you signed up with.' });
+        setShowPayModal(true);
+        setLoading(false);
+        return;
+      }
 
       const PaystackPop = window.PaystackPop;
       if (!PaystackPop) {
@@ -216,16 +267,7 @@ export default function MembershipSection({ navigateTo }) {
           ))}
         </div>
 
-        {/* R1 Test Button */}
-        <div className="mt-10 flex justify-center">
-          <button
-            onClick={() => handleJoin(1)}
-            disabled={isActive || loading}
-            className="px-8 py-3 border border-dashed border-black/20 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-black hover:border-black/40 transition-all disabled:opacity-40"
-          >
-            🧪 R1 Test Subscription (Testing Only)
-          </button>
-        </div>
+
 
       </div>
     </section>
