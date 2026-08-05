@@ -37,7 +37,7 @@ export default function PaystackButton({ navigateTo }) {
     window.PaystackPop.setup({
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: 100, // R1 test
+      amount: 19500, // R195
       currency: 'ZAR',
       metadata: { userId: user.id, name: details.name, phone: details.phone },
       callback: (transaction) => {
@@ -67,7 +67,7 @@ export default function PaystackButton({ navigateTo }) {
               Confirm Your Details
             </h2>
             <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
-              We need these details before processing your R1 test subscription.
+              We need these details before processing your R195/month subscription.
             </p>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function PaystackButton({ navigateTo }) {
               </div>
               <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
                 <span>Amount Due</span>
-                <span className="text-black font-black">R1.00 (Test)</span>
+                <span className="text-black font-black">R195.00 / month</span>
               </div>
               {msg && (
                 <div className={`p-3 text-[10px] font-bold uppercase tracking-wide border ${msg.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
@@ -137,7 +137,7 @@ export default function PaystackButton({ navigateTo }) {
           cursor: 'pointer', borderRadius: 4, boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
         }}
       >
-        Subscribe R1 (Test)
+        Subscribe R195/m
       </button>
     </>
   );
