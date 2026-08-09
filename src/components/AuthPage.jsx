@@ -21,7 +21,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const [view, setView] = useState("login"); // login | register | forgot | register-done | forgot-done
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", phone: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", address: "" });
 
   const updateField = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -44,9 +44,17 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
           options: { data: { full_name: formData.fullName } }
         });
         if (error) throw error;
-        // Save phone to profile
+        // Save all registration details to profile
         if (data?.user) {
-          await supabase.from('profiles').upsert({ id: data.user.id, full_name: formData.fullName, phone: formData.phone });
+          await supabase.from('profiles').upsert({
+            id: data.user.id,
+            full_name: formData.fullName,
+            surname: formData.surname,
+            phone: formData.phone,
+            id_passport: formData.idPassport,
+            car_make: formData.carMake,
+            address: formData.address,
+          });
         }
         setView("register-done");
       }
@@ -84,7 +92,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const switchView = (v) => {
     setView(v);
     setError("");
-    setFormData({ email: "", password: "", fullName: "", phone: "" });
+    setFormData({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", address: "" });
   };
 
   const titles = {
@@ -152,7 +160,13 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
             {view === "register" && (
               <motion.form key="register" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6" onSubmit={handleAuth}>
                 {error && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-red-50 border border-red-200 p-3">{error}</p>}
-                <InputField label="Full Name" type="text" placeholder="Driver Name" value={formData.fullName} onChange={updateField("fullName")} />
+                <div className="grid grid-cols-2 gap-4">
+                  <InputField label="First Name" type="text" placeholder="e.g. Sipho" value={formData.fullName} onChange={updateField("fullName")} />
+                  <InputField label="Surname" type="text" placeholder="e.g. Dlamini" value={formData.surname} onChange={updateField("surname")} />
+                </div>
+                <InputField label="ID / Passport Number" type="text" placeholder="e.g. 8001015009087" value={formData.idPassport} onChange={updateField("idPassport")} />
+                <InputField label="Car Make & Model" type="text" placeholder="e.g. VW Golf 7 GTI" value={formData.carMake} onChange={updateField("carMake")} />
+                <InputField label="Address" type="text" placeholder="e.g. 12 Sandton Drive, Johannesburg" value={formData.address} onChange={updateField("address")} />
                 <InputField label="Phone Number" type="tel" placeholder="e.g. 0712345678" value={formData.phone} onChange={updateField("phone")} />
                 <InputField label="Email Address" type="email" placeholder="email@example.com" value={formData.email} onChange={updateField("email")} />
                 <InputField label="Password" type="password" placeholder="Create Access Key (min 8 chars)" value={formData.password} onChange={updateField("password")} />
