@@ -4,7 +4,7 @@ export default function GearboxSection() {
   const specializedParts = [
     { title: "Mechatronic Repair", img: "/hero-car.jpg" },
     { title: "DSG Overhaul", img: "/hero-car.jpg" },
-    { title: "TCM Cloning", img: "/hero-car.jpg" }
+    { title: "Online Programming", img: "/hero-car.jpg" }
   ];
 
   return (

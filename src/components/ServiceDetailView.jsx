@@ -17,8 +17,8 @@ const serviceDetails = {
     content: "Precision installation of LUK or OEM clutch packs. We utilize specialized shimming tools to ensure factory-spec clearances, preventing the 'shudder' common in amateur installs.",
     process: ["Measurement of K1/K2 play", "Precision shimming and alignment", "Needle bearing replacement", "Basic setting adaptation"]
   },
-  "tcm-cloning": {
-    title: "TCM Cloning & Coding",
+  "online-programming": {
+    title: "Online Programming & Coding",
     subtitle: "Software Intelligence",
     stats: { success: "99%", time: "Same Day", cost: "Reduction -60%" },
     content: "Proprietary hex-data recovery and module cloning. If your transmission control module is hardware-failed, we can clone its VIN and adaptation data to a donor unit, bypassing dealership component protection.",

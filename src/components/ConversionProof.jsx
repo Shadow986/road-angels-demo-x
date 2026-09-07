@@ -4,7 +4,7 @@ import { CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 export default function ConversionProof() {
   const points = [
     { icon: <AlertTriangle className="text-[var(--color-halo-silver)]" />, title: "Common Failure?", desc: "Most VAG units can be restored if caught early. Avoid the R60k total replacement cost." },
-    { icon: <CheckCircle2 className="text-[var(--color-halo-silver)]" />, title: "Dealer-Level Tech", desc: "We utilize ODIS diagnostics and proprietary TCM cloning to ensure factory integrity." },
+    { icon: <CheckCircle2 className="text-[var(--color-halo-silver)]" />, title: "Dealer-Level Tech", desc: "We utilize ODIS diagnostics and proprietary Online Programming to ensure factory integrity." },
     { icon: <ShieldCheck className="text-[var(--color-halo-silver)]" />, title: "The Road Angel Bond", desc: "Every restoration is backed by our 12-Month / 30,000km specialized engineering warranty." }
   ];
 
