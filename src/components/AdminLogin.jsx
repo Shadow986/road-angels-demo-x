@@ -1,192 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, Search, Filter, MoreVertical, CheckCircle, 
-  AlertCircle, LogOut, Settings, ShieldAlert, Loader2, Download, X, Edit3
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { ShieldAlert, Loader2, ArrowLeft, Lock, Mail } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
-// --- Edit Modal Component ---
-const UserEditModal = ({ isOpen, onClose, user, onSave, isSaving }) => {
-  const [rank, setRank] = useState(user?.membership_rank || 'Bronze');
+export default function AdminLogin({ onLoginSuccess }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white border border-black/10 w-full max-w-md p-8 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
-          <X size={20} />
-        </button>
-        <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-2">Modify Security Clearance</h2>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-8">Member: {user?.full_name}</p>
-
-        <div className="space-y-6">
-          <div className="space-y-3">
-            <label className="text-[9px] font-black uppercase text-gray-500 tracking-[0.2em]">Assigned Bond Tier</label>
-            <select 
-              className="w-full bg-gray-50 border border-black/10 p-4 text-[10px] font-bold text-black uppercase tracking-widest outline-none focus:border-[var(--color-halo-silver)] appearance-none cursor-pointer"
-              value={rank}
-              onChange={(e) => setRank(e.target.value)}
-            >
-              <option value="Bronze" className="bg-white">Bronze (Base)</option>
-              <option value="Sentinel" className="bg-white">Sentinel (Tier 2)</option>
-              <option value="Vanguard" className="bg-white">Vanguard (Tier 3)</option>
-              <option value="Elite" className="bg-white">Elite (Tier 4)</option>
-            </select>
-          </div>
-
-          <button 
-            disabled={isSaving}
-            onClick={() => onSave(user.id, rank)}
-            className="w-full py-4 bg-[var(--color-halo-silver)] text-white font-black uppercase text-[10px] tracking-widest hover:opacity-90 transition-all disabled:opacity-50"
-          >
-            {isSaving ? "Updating Clearance..." : "Confirm Tier Upgrade"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default function AdminDashboard({ onLogout }) {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [stats, setStats] = useState({ total: 0, pending: 0, revenue: 0 });
-  
-  // Edit State
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
-  async function fetchAdminData() {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
     setLoading(true);
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('*, vehicles(id)')
-      .order('created_at', { ascending: false });
 
-    if (profiles) {
-      setMembers(profiles);
-      setStats({
-        total: profiles.length,
-        pending: profiles.filter(p => !p.is_active_member).length,
-        revenue: profiles.filter(p => p.is_active_member).length * 195
+    try {
+      // Sign in with Supabase auth
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
+      if (signInError) throw signInError;
+
+      // Check if user has admin role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (!profile || profile.role !== 'admin') {
+        await supabase.auth.signOut();
+        setError('Access denied. This account does not have admin privileges.');
+        setLoading(false);
+        return;
+      }
+
+      onLoginSuccess();
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.toLowerCase().includes('invalid login credentials')) {
+        setError('Invalid email or password.');
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }
-
-  const handleUpdateRank = async (userId, newRank) => {
-    setIsSaving(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ membership_rank: newRank })
-      .eq('id', userId);
-    
-    if (!error) {
-      setSelectedUser(null);
-      await fetchAdminData();
-    }
-    setIsSaving(false);
   };
-
-  const toggleVerification = async (userId, currentStatus) => {
-    await supabase.from('profiles').update({ is_active_member: !currentStatus }).eq('id', userId);
-    fetchAdminData();
-  };
-
-  const filteredMembers = members.filter(m => 
-    m.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (loading) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <Loader2 className="text-[var(--color-halo-silver)] animate-spin" size={32} />
-    </div>
-  );
 
   return (
-    <div className="min-h-screen bg-white pt-28 pb-20 px-8 md:px-20 font-sans">
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <h1 className="text-4xl font-black italic uppercase tracking-tighter text-black">
-            Admin <span className="text-[var(--color-halo-silver)]">Console</span>
-          </h1>
-          <button onClick={onLogout} className="group flex items-center gap-3 px-5 py-3 border border-black/10 text-gray-400 hover:text-black transition-all">
-            <span className="text-[10px] font-black uppercase tracking-widest">Logout</span>
-            <LogOut size={16} />
-          </button>
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6 py-20 font-sans relative">
+      <div className="absolute top-10 left-10">
+        <button
+          onClick={() => window.history.back()}
+          className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors group"
+        >
+          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+          Back
+        </button>
+      </div>
+
+      <div className="w-full max-w-md">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-20 h-20 border border-white/10 bg-white/5 rounded-full mb-8 text-[var(--color-halo-silver)] shadow-lg">
+            <ShieldAlert size={36} strokeWidth={1} />
+          </div>
+          <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-2 leading-none">
+            Secure <span className="text-[var(--color-halo-silver)]">Terminal</span>
+          </h2>
+          <p className="text-[9px] uppercase tracking-[0.4em] text-gray-500 font-bold">Authorized Personnel Only</p>
         </div>
 
-        {/* User Table */}
-        <div className="bg-gray-50 border border-black/10 rounded-sm">
-          <div className="p-6 border-b border-black/10 flex gap-4 bg-gray-100/50">
-            <input 
-              type="text" 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="SEARCH ASSETS OR MEMBERS..." 
-              className="flex-1 bg-white border border-black/10 py-3 px-4 text-[11px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] uppercase font-bold tracking-widest"
-            />
-          </div>
+        <div className="bg-white/5 border border-white/10 p-10 rounded-sm backdrop-blur-sm">
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="p-3 text-[10px] font-bold uppercase tracking-wide bg-red-500/10 border border-red-500/20 text-red-400">
+                {error}
+              </div>
+            )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-black/10 text-[10px] uppercase font-black tracking-widest text-gray-400">
-                  <th className="p-6">Member</th>
-                  <th className="p-6">Bond Tier</th>
-                  <th className="p-6">Assets</th>
-                  <th className="p-6">Verification</th>
-                  <th className="p-6 text-right">Settings</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/5">
-                {filteredMembers.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="p-6">
-                      <div className="text-[12px] font-black text-black uppercase italic">{u.full_name}</div>
-                      <div className="text-[9px] text-gray-400 uppercase">{u.email}</div>
-                    </td>
-                    <td className="p-6">
-                      <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 border border-black/10 text-black">
-                        {u.membership_rank || 'Bronze'}
-                      </span>
-                    </td>
-                    <td className="p-6 text-[12px] font-mono text-gray-500">{u.vehicles?.length || 0}</td>
-                    <td className="p-6">
-                      <button onClick={() => toggleVerification(u.id, u.is_active_member)} className="flex items-center gap-2">
-                        {u.is_active_member ? <CheckCircle size={12} className="text-green-500"/> : <AlertCircle size={12} className="text-orange-500"/>}
-                        <span className="text-[10px] font-bold text-black uppercase">{u.is_active_member ? 'Active' : 'Pending'}</span>
-                      </button>
-                    </td>
-                    <td className="p-6 text-right">
-                      <button onClick={() => setSelectedUser(u)} className="p-2 text-gray-400 hover:text-black transition-all">
-                        <Edit3 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            {/* Email */}
+            <div className="space-y-2">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                <Mail size={12} /> Admin Email
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-black/30 border border-white/10 p-4 text-[13px] text-white focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-600"
+                placeholder="admin@roadangelsrsa.co.za"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                <Lock size={12} /> Access Key
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-black/30 border border-white/10 p-4 text-[13px] text-white focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-600"
+                placeholder="••••••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3 disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="animate-spin" size={14} /> : 'Authorize Access'}
+            </button>
+          </form>
         </div>
 
-        {/* --- Dynamic Modals --- */}
-        <UserEditModal 
-          isOpen={!!selectedUser} 
-          user={selectedUser} 
-          isSaving={isSaving}
-          onClose={() => setSelectedUser(null)}
-          onSave={handleUpdateRank}
-        />
-
+        <p className="text-center text-[8px] text-gray-600 uppercase tracking-[0.3em] font-bold mt-8">
+          Road Angels RSA · Admin Console
+        </p>
       </div>
     </div>
   );

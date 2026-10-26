@@ -2,8 +2,18 @@
 -- Admin Panel Migration: tables, RLS policies, storage bucket
 -- ============================================================
 
+-- ── 0. Helper: is_admin() function (SECURITY DEFINER) ────────
+-- Bypasses RLS to check the current user's role without causing
+-- infinite recursion on the profiles table policies.
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer stable;
+
 -- ── 1. Site Settings table ──────────────────────────────────
--- Stores editable site-wide configuration as key/value pairs
 create table if not exists site_settings (
   id uuid default gen_random_uuid() primary key,
   key text unique not null,
@@ -16,22 +26,15 @@ create table if not exists site_settings (
 
 alter table site_settings enable row level security;
 
--- Public can read settings (so the site can display them)
 drop policy if exists "Public can read site settings" on site_settings;
 create policy "Public can read site settings" on site_settings
   for select to public using (true);
 
--- Only admins can write settings
 drop policy if exists "Admins can manage site settings" on site_settings;
 create policy "Admins can manage site settings" on site_settings
-  for all using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  )
-  with check (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for all using (public.is_admin())
+  with check (public.is_admin());
 
--- Seed default settings
 insert into site_settings (key, value, label, description) values
   ('membership_price', '195', 'Monthly Membership Price (R)', 'The monthly subscription fee in ZAR'),
   ('contact_phone', '+27604807393', 'Contact Phone', 'Primary WhatsApp/contact number'),
@@ -41,149 +44,97 @@ insert into site_settings (key, value, label, description) values
 on conflict (key) do nothing;
 
 -- ── 2. Admin Audit Logs table ───────────────────────────────
--- Tracks all admin actions for accountability
 create table if not exists admin_logs (
   id uuid default gen_random_uuid() primary key,
   admin_id uuid references auth.users(id) on delete set null,
-  action text not null,              -- 'update_member', 'delete_vehicle', 'update_settings', etc.
-  target_table text,                 -- 'profiles', 'vehicles', 'payments', 'site_settings'
-  target_id text,                    -- ID of the affected record
-  details jsonb,                     -- Additional context (before/after values)
+  action text not null,
+  target_table text,
+  target_id text,
+  details jsonb,
   created_at timestamptz default now()
 );
 
 alter table admin_logs enable row level security;
 
--- Admins can read logs
 drop policy if exists "Admins can read admin logs" on admin_logs;
 create policy "Admins can read admin logs" on admin_logs
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for select using (public.is_admin());
 
--- Service role (edge functions) can insert logs; admins can insert via client too
 drop policy if exists "Admins can insert admin logs" on admin_logs;
 create policy "Admins can insert admin logs" on admin_logs
-  for insert with check (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-    or auth.role() = 'service_role'
-  );
+  for insert with check (public.is_admin() or auth.role() = 'service_role');
 
 -- ── 3. Admin RLS policies on existing tables ─────────────────
--- Allow admins to read & manage profiles, vehicles, and payments
 
--- ── 3a. Profiles ──
+-- 3a. Profiles
 drop policy if exists "Admins can read all profiles" on profiles;
 create policy "Admins can read all profiles" on profiles
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for select using (public.is_admin());
 
 drop policy if exists "Admins can update profiles" on profiles;
 create policy "Admins can update profiles" on profiles
-  for update using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  )
-  with check (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for update using (public.is_admin())
+  with check (public.is_admin());
 
 drop policy if exists "Admins can delete profiles" on profiles;
 create policy "Admins can delete profiles" on profiles
-  for delete using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for delete using (public.is_admin());
 
--- ── 3b. Vehicles ──
+-- 3b. Vehicles
 drop policy if exists "Admins can read all vehicles" on vehicles;
 create policy "Admins can read all vehicles" on vehicles
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for select using (public.is_admin());
 
 drop policy if exists "Admins can update vehicles" on vehicles;
 create policy "Admins can update vehicles" on vehicles
-  for update using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  )
-  with check (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for update using (public.is_admin())
+  with check (public.is_admin());
 
 drop policy if exists "Admins can delete vehicles" on vehicles;
 create policy "Admins can delete vehicles" on vehicles
-  for delete using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for delete using (public.is_admin());
 
--- ── 3c. Payments ──
+-- 3c. Payments
 drop policy if exists "Admins can read all payments" on payments;
 create policy "Admins can read all payments" on payments
-  for select using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for select using (public.is_admin());
 
 drop policy if exists "Admins can update payments" on payments;
 create policy "Admins can update payments" on payments
-  for update using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  )
-  with check (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for update using (public.is_admin())
+  with check (public.is_admin());
 
 drop policy if exists "Admins can delete payments" on payments;
 create policy "Admins can delete payments" on payments
-  for delete using (
-    exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  for delete using (public.is_admin());
 
 -- ── 4. Admin uploads storage bucket ─────────────────────────
--- For admin-uploaded files (documents, images, etc.)
-
 insert into storage.buckets (id, name, public)
 values ('admin-uploads', 'admin-uploads', true)
 on conflict (id) do nothing;
 
--- Admins can upload files
 drop policy if exists "Admins can upload to admin-uploads" on storage.objects;
 create policy "Admins can upload to admin-uploads" on storage.objects
   for insert to authenticated
-  with check (
-    bucket_id = 'admin-uploads'
-    and exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  with check (bucket_id = 'admin-uploads' and public.is_admin());
 
--- Public can view admin uploads (logos, banners, etc.)
 drop policy if exists "Public can view admin-uploads" on storage.objects;
 create policy "Public can view admin-uploads" on storage.objects
   for select to public
   using (bucket_id = 'admin-uploads');
 
--- Admins can delete their uploads
 drop policy if exists "Admins can delete admin-uploads" on storage.objects;
 create policy "Admins can delete admin-uploads" on storage.objects
   for delete to authenticated
-  using (
-    bucket_id = 'admin-uploads'
-    and exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  using (bucket_id = 'admin-uploads' and public.is_admin());
 
--- Admins can update their uploads
 drop policy if exists "Admins can update admin-uploads" on storage.objects;
 create policy "Admins can update admin-uploads" on storage.objects
   for update to authenticated
-  using (
-    bucket_id = 'admin-uploads'
-    and exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  )
-  with check (
-    bucket_id = 'admin-uploads'
-    and exists (select 1 from profiles p where p.id = auth.uid() and p.role = 'admin')
-  );
+  using (bucket_id = 'admin-uploads' and public.is_admin())
+  with check (bucket_id = 'admin-uploads' and public.is_admin());
 
 -- ── 5. Helper function: log admin action ────────────────────
--- Callable from edge functions or client to record actions
 create or replace function log_admin_action(
   p_admin_id uuid,
   p_action text,
