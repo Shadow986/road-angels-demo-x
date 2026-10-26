@@ -2,7 +2,20 @@
 -- Admin Panel Migration: tables, RLS policies, storage bucket
 -- ============================================================
 
--- ── 0. Helper: is_admin() function (SECURITY DEFINER) ────────
+-- ── 0a. Ensure required columns exist on profiles ───────────
+-- These may have been added by earlier migrations that were not
+-- applied to the live database, so we guard with IF NOT EXISTS.
+alter table profiles add column if not exists role text default 'user';
+alter table profiles add column if not exists is_active_member boolean default false;
+alter table profiles add column if not exists full_name text;
+alter table profiles add column if not exists membership_rank text default 'Bronze';
+alter table profiles add column if not exists phone text;
+alter table profiles add column if not exists surname text;
+alter table profiles add column if not exists id_passport text;
+alter table profiles add column if not exists car_make text;
+alter table profiles add column if not exists address text;
+
+-- ── 0b. Helper: is_admin() function (SECURITY DEFINER) ───────
 -- Bypasses RLS to check the current user's role without causing
 -- infinite recursion on the profiles table policies.
 create or replace function public.is_admin()
