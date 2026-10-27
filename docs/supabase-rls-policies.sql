@@ -183,3 +183,8 @@ CREATE POLICY "Admins can update settings"
       AND profiles.role = 'admin'
     )
   );
+
+-- ============================================================
+-- 8. Add VIN column to vehicles table
+-- ============================================================
+ALTER TABLE vehicles ADD COLUMN IF NOT EXISTS vin text;

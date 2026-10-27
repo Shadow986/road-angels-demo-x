@@ -505,6 +505,7 @@ const ViewMemberModal = ({ user, onClose }) => (
                 <div>
                   <div className="text-[10px] font-black text-black uppercase">{v.make} {v.model}</div>
                   <div className="text-[9px] text-gray-400 font-mono">{v.plate}</div>
+                  {v.vin && <div className="text-[8px] text-gray-400 font-mono tracking-wider mt-0.5">VIN: {v.vin}</div>}
                   <div className="flex items-center gap-1 mt-1">
                     {v.is_verified
                       ? <CheckCircle size={10} className="text-green-500" />
@@ -605,6 +606,7 @@ function VehiclesTab() {
                 <div>
                   <div className="text-[11px] font-black text-black uppercase">{v.make} {v.model}</div>
                   <div className="text-[9px] text-gray-400 font-mono tracking-widest">{v.plate}</div>
+                  {v.vin && <div className="text-[8px] text-gray-400 font-mono tracking-wider mt-1">VIN: {v.vin}</div>}
                 </div>
                 <button
                   onClick={() => toggleVerify(v.id, v.is_verified)}

@@ -65,7 +65,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
-  const [vehicleForm, setVehicleForm] = useState({ make: '', model: '', plate: '', imageFile: null });
+  const [vehicleForm, setVehicleForm] = useState({ make: '', model: '', plate: '', vin: '', imageFile: null });
   const [profileForm, setProfileForm] = useState({ full_name: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Payment detail form state (collected before Paystack opens)
@@ -113,8 +113,8 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         image_url = data.publicUrl;
       }
     }
-    const { error } = await supabase.from('vehicles').insert([{ make: vehicleForm.make, model: vehicleForm.model, plate: vehicleForm.plate, image_url, user_id: user.id }]);
-    if (!error) { setVehicleForm({ make: '', model: '', plate: '', imageFile: null }); setActiveModal(null); await fetchDashboardData(); }
+    const { error } = await supabase.from('vehicles').insert([{ make: vehicleForm.make, model: vehicleForm.model, plate: vehicleForm.plate, vin: vehicleForm.vin || null, image_url, user_id: user.id }]);
+    if (!error) { setVehicleForm({ make: '', model: '', plate: '', vin: '', imageFile: null }); setActiveModal(null); await fetchDashboardData(); }
     setIsSubmitting(false);
   };
 
@@ -275,6 +275,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                     </div>
                     <div className="text-xl font-black italic uppercase text-black mb-1">{car.model}</div>
                     <div className="text-[12px] font-mono text-gray-400 tracking-widest">{car.plate}</div>
+                    {car.vin && <div className="text-[9px] font-mono text-gray-300 tracking-wider mt-1">VIN: {car.vin}</div>}
                   </div>
                 </div>
               ))}
@@ -319,6 +320,10 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Make (e.g. BMW)" value={vehicleForm.make} onChange={e => setVehicleForm({...vehicleForm, make: e.target.value})} />
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Model (e.g. M3 Competition)" value={vehicleForm.model} onChange={e => setVehicleForm({...vehicleForm, model: e.target.value})} />
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Registration Number" value={vehicleForm.plate} onChange={e => setVehicleForm({...vehicleForm, plate: e.target.value})} />
+            <div className="space-y-2">
+              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">VIN Number (optional)</label>
+              <input className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none uppercase tracking-wider" placeholder="e.g. WBA7E2C50JG8432 10" value={vehicleForm.vin} onChange={e => setVehicleForm({...vehicleForm, vin: e.target.value})} maxLength={17} />
+            </div>
             <div className="space-y-2">
               <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Car Image (optional)</label>
               <input type="file" accept="image/*" className="w-full bg-gray-50 border border-black/10 p-3 text-sm text-black outline-none file:mr-4 file:py-1 file:px-3 file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-black file:text-white cursor-pointer"
