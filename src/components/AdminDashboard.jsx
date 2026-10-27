@@ -3,7 +3,8 @@ import {
   Users, Car, CreditCard, Settings, ScrollText, LayoutDashboard,
   LogOut, Search, CheckCircle, AlertCircle, Loader2, X, Edit3,
   Trash2, ShieldCheck, TrendingUp, DollarSign, Calendar, Filter,
-  Phone, Mail, MapPin, Save, Star, Eye, ChevronLeft, Image as ImageIcon
+  Phone, Mail, MapPin, Save, Star, Eye, ChevronLeft, Image as ImageIcon,
+  UserPlus, Shield, Lock
 } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
@@ -63,6 +64,7 @@ const navItems = [
   { id: 'vehicles',  label: 'Vehicles',  icon: Car },
   { id: 'payments',  label: 'Payments',  icon: CreditCard },
   { id: 'settings',  label: 'Settings',   icon: Settings },
+  { id: 'admins',    label: 'Admins',     icon: UserPlus },
   { id: 'logs',      label: 'Audit Logs', icon: ScrollText },
 ];
 
@@ -892,6 +894,301 @@ function SettingsTab() {
   );
 }
 
+// ─── Admins Tab ──────────────────────────────────────────────
+function AdminsTab() {
+  const [admins, setAdmins] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [confirmDemote, setConfirmDemote] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  // Add admin form state
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phone: '',
+  });
+
+  const fetchAdmins = useCallback(async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) setCurrentUserId(user.id);
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'admin')
+      .order('created_at', { ascending: false });
+    if (data) setAdmins(data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchAdmins(); }, [fetchAdmins]);
+
+  const handleAddAdmin = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFeedback(null);
+
+    try {
+      // 1. Create the auth user via Supabase signup
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName.trim(),
+            phone: formData.phone.trim(),
+          },
+        },
+      });
+
+      if ( signUpError) throw signUpError;
+
+      const newUserId = signUpData.user?.id;
+
+      if (!newUserId) {
+        throw new Error('User created but no ID returned. Check if email confirmation is required.');
+      }
+
+      // 2. Set their role to 'admin' in the profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: newUserId,
+          full_name: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          role: 'admin',
+          is_active_member: true,
+        });
+
+      if (profileError) {
+        // User was created in auth but profile insert failed
+        setFeedback({
+          type: 'warning',
+          text: `Auth user created but profile update failed: ${profileError.message}. Run the SQL from docs/credentials.md to set the role manually.`,
+        });
+      } else {
+        await logAction('add_admin', 'profiles', newUserId, { email: formData.email });
+        setFeedback({ type: 'success', text: `Admin account created for ${formData.email}. They may need to confirm their email before logging in.` });
+        setShowAddForm(false);
+        setFormData({ email: '', password: '', fullName: '', phone: '' });
+        await fetchAdmins();
+      }
+    } catch (err) {
+      const msg = err.message || 'Failed to create admin.';
+      if (msg.toLowerCase().includes('already') || msg.toLowerCase().includes('registered')) {
+        setFeedback({ type: 'error', text: 'A user with this email already exists.' });
+      } else {
+        setFeedback({ type: 'error', text: msg });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDemote = async (userId) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ role: 'user' })
+      .eq('id', userId);
+    if (!error) {
+      await logAction('demote_admin', 'profiles', userId, { from: 'admin', to: 'user' });
+      setConfirmDemote(null);
+      await fetchAdmins();
+    } else {
+      setFeedback({ type: 'error', text: `Failed to demote: ${error.message}` });
+    }
+  };
+
+  const isSelf = (userId) => userId === currentUserId;
+
+  if (loading) return <LoadingState />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Admin <span className="text-[var(--color-halo-silver)]">Management</span></h1>
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest">{admins.length} admin accounts</p>
+        </div>
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all"
+        >
+          <UserPlus size={14} />
+          Add Admin
+        </button>
+      </div>
+
+      {/* Feedback */}
+      {feedback && (
+        <div className={`p-4 text-[10px] font-bold uppercase tracking-wide border ${
+          feedback.type === 'success' ? 'bg-green-50 border-green-200 text-green-700'
+          : feedback.type === 'warning' ? 'bg-orange-50 border-orange-200 text-orange-700'
+          : 'bg-red-50 border-red-200 text-red-700'
+        }`}>
+          {feedback.text}
+          <button onClick={() => setFeedback(null)} className="float-right"><X size={12} /></button>
+        </div>
+      )}
+
+      {/* Add Admin Form Modal */}
+      {showAddForm && (
+        <Modal isOpen={true} onClose={() => setShowAddForm(false)} title="Add New Admin">
+          <form onSubmit={handleAddAdmin} className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+                <Mail size={12} /> Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full bg-gray-50 border border-black/10 p-4 text-[12px] text-black focus:outline-none focus:border-[var(--color-halo-silver)]"
+                placeholder="newadmin@roadangelsrsa.co.za"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+                <Lock size={12} /> Temporary Password
+              </label>
+              <input
+                type="password"
+                required
+                minLength={8}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full bg-gray-50 border border-black/10 p-4 text-[12px] text-black focus:outline-none focus:border-[var(--color-halo-silver)]"
+                placeholder="Minimum 8 characters"
+              />
+              <p className="text-[9px] text-gray-400">The new admin can change this after first login.</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="w-full bg-gray-50 border border-black/10 p-4 text-[12px] text-black focus:outline-none focus:border-[var(--color-halo-silver)]"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Phone (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full bg-gray-50 border border-black/10 p-4 text-[12px] text-black focus:outline-none focus:border-[var(--color-halo-silver)]"
+                  placeholder="+27 00 000 0000"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-black/5">
+              <button type="button" onClick={() => setShowAddForm(false)} className="flex-1 py-3 border border-black/10 text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <><Shield size={14} /> Create Admin</>}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Admins Table */}
+      <div className="bg-white border border-black/10 rounded-sm overflow-x-auto">
+        <table className="w-full text-left">
+          <thead>
+            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-400 bg-gray-50">
+              <th className="p-4">Admin</th>
+              <th className="p-4">Contact</th>
+              <th className="p-4">Added</th>
+              <th className="p-4">Status</th>
+              <th className="p-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            {admins.map((a) => (
+              <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                <td className="p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 border border-black/10 bg-gray-50">
+                      <ShieldCheck size={14} className="text-[var(--color-halo-silver)]" />
+                    </div>
+                    <div>
+                      <div className="text-[11px] font-black text-black uppercase">{a.full_name || 'Unknown'}</div>
+                      {isSelf(a.id) && <span className="text-[8px] font-black uppercase text-[var(--color-halo-silver)] tracking-widest">You</span>}
+                    </div>
+                  </div>
+                </td>
+                <td className="p-4">
+                  <div className="text-[10px] text-gray-600">{a.phone || '—'}</div>
+                  <div className="text-[9px] text-gray-400">See auth.users for email</div>
+                </td>
+                <td className="p-4 text-[9px] text-gray-400">{fmtDate(a.created_at)}</td>
+                <td className="p-4">
+                  {a.is_active_member
+                    ? <span className="flex items-center gap-1 text-[9px] font-bold uppercase text-green-600"><CheckCircle size={10} /> Active</span>
+                    : <span className="flex items-center gap-1 text-[9px] font-bold uppercase text-orange-500"><AlertCircle size={10} /> Inactive</span>}
+                </td>
+                <td className="p-4 text-right">
+                  {isSelf(a.id) ? (
+                    <span className="text-[9px] font-bold uppercase text-gray-300">Current Session</span>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDemote(a)}
+                      className="px-3 py-2 text-[9px] font-black uppercase tracking-widest border border-red-200 text-red-500 hover:bg-red-50 transition-all"
+                    >
+                      Demote to User
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {admins.length === 0 && (
+          <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center">No admins found</p>
+        )}
+      </div>
+
+      {/* Demote Confirmation */}
+      {confirmDemote && (
+        <Modal isOpen={true} onClose={() => setConfirmDemote(null)} title="Demote Admin">
+          <div className="space-y-6">
+            <p className="text-[11px] text-gray-600 leading-relaxed">
+              Remove admin privileges from <span className="font-black text-black uppercase">{confirmDemote.full_name || confirmDemote.email}</span>? They will be downgraded to a regular user and lose access to this console.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDemote(null)} className="flex-1 py-3 border border-black/10 text-[10px] font-black uppercase tracking-widest hover:bg-gray-50 transition-all">
+                Cancel
+              </button>
+              <button onClick={() => handleDemote(confirmDemote.id)} className="flex-1 py-3 bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all">
+                Demote
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
 // ─── Audit Logs Tab ──────────────────────────────────────────
 function LogsTab() {
   const [logs, setLogs] = useState([]);
@@ -1063,6 +1360,7 @@ export default function AdminDashboard({ onLogout }) {
       case 'vehicles': return <VehiclesTab />;
       case 'payments': return <PaymentsTab />;
       case 'settings': return <SettingsTab />;
+      case 'admins':   return <AdminsTab />;
       case 'logs':     return <LogsTab />;
       default:          return <OverviewTab stats={stats} recentMembers={recentMembers} recentPayments={recentPayments} />;
     }
