@@ -47,7 +47,7 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
           Confirm Your Details
         </h2>
         <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
-          We need these details before processing your R195/month subscription.
+          We need these details before processing your R1/day subscription.
         </p>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
@@ -74,7 +74,7 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
             {errors.phone && <p className="text-[9px] text-red-500 uppercase tracking-wide">{errors.phone}</p>}
           </div>
           <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
-            <span>Amount Due</span><span className="text-black font-black">R195.00 / month</span>
+            <span>Amount Due</span><span className="text-black font-black">R1.00 / day</span>
           </div>
           {payMsg && (
             <div className={`p-3 text-[10px] font-bold uppercase tracking-wide border ${payMsg.type === 'error' ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
@@ -98,7 +98,7 @@ export default function MembershipSection({ navigateTo }) {
   const [isActive, setIsActive] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPayModal, setShowPayModal] = useState(false);
-  const [pendingAmount, setPendingAmount] = useState(195);
+  const [pendingAmount, setPendingAmount] = useState(1);
   const [statusMsg, setStatusMsg] = useState(null); // { type: 'success'|'error', text: string }
 
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function MembershipSection({ navigateTo }) {
     setStatusMsg(null);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { navigateTo('auth'); return; }
-    setPendingAmount(195);
+    setPendingAmount(1);
     setShowPayModal(true);
   };
 
@@ -166,6 +166,7 @@ export default function MembershipSection({ navigateTo }) {
         email: user.email,
         amount: pendingAmount * 100,
         currency: 'ZAR',
+        plan: 'PLN_jnh71yoi84xqzvj', // Daily recurring plan
         metadata: { userId: user.id, name, phone },
         callback: async (transaction) => {
           try {
@@ -214,7 +215,7 @@ export default function MembershipSection({ navigateTo }) {
               Unlock Exclusive <br /><span className="text-[var(--color-halo-silver)]">Gearbox Care.</span>
             </h2>
             <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] leading-relaxed">
-              Join the Road Angels RSA subscription for R195/month to secure long-term performance and massive discounts.
+              Join the Road Angels RSA subscription for R1/day to secure long-term performance and massive discounts.
             </p>
           </div>
           <button 
@@ -261,7 +262,7 @@ export default function MembershipSection({ navigateTo }) {
                   ${isActive ? 'bg-green-50 text-green-600 border border-green-200 cursor-default' : 'bg-[var(--color-vag-blue)] text-white hover:bg-black'}
                   ${loading ? 'opacity-50' : ''}`}
               >
-                {loading ? 'Processing...' : isActive ? '✓ Active' : 'Subscribe R195/m'}
+                {loading ? 'Processing...' : isActive ? '✓ Active' : 'Subscribe R1/day'}
               </button>
             </motion.div>
           ))}

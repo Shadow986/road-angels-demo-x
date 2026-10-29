@@ -39,7 +39,7 @@ export default function MembershipPage() {
       </div>
       <div className="max-w-md mx-auto">
         <button className="w-full py-5 bg-[var(--color-vag-blue)] text-white text-[10px] font-black uppercase tracking-[0.3em] hover:brightness-125 transition-all flex items-center justify-center gap-3">
-          Subscribe R195/Month <ChevronRight size={14} />
+          Subscribe R1/Day <ChevronRight size={14} />
         </button>
       </div>
     </div>

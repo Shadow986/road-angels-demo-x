@@ -119,7 +119,7 @@ function OverviewTab({ stats, recentMembers, recentPayments }) {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Members" value={stats.total} subtext={`${stats.active} active · ${stats.pending} pending`} icon={Users} />
-        <StatCard label="Revenue (Month)" value={fmtMoney(stats.revenue)} subtext={`${stats.active} × R195`} icon={DollarSign} />
+        <StatCard label="Revenue (Month)" value={fmtMoney(stats.revenue)} subtext={`${stats.active} × R1`} icon={DollarSign} />
         <StatCard label="Vehicles" value={stats.vehicles} subtext="Registered fleet" icon={Car} />
         <StatCard label="Transactions" value={stats.transactions} subtext={`${stats.successPayments} successful`} icon={CreditCard} />
       </div>

@@ -151,8 +151,9 @@ export default function UserDashboard({ onLogout, navigateTo }) {
       const handler = PaystackPop.setup({
         key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
         email: user.email,
-        amount: 19500,
+        amount: 100,
         currency: 'ZAR',
+        plan: 'PLN_jnh71yoi84xqzvj', // Daily recurring plan
         metadata: {
           userId: user.id,
           name: paymentDetails.name,
@@ -248,7 +249,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                 />
                 <StatCard
                   label="Payment"
-                  value={profile?.is_active_member ? "R195.00" : "R0.00"}
+                  value={profile?.is_active_member ? "R1.00" : "R0.00"}
                   icon={CreditCard}
                   subtext={profile?.is_active_member ? "Monthly Subscription" : "No Active Plan"}
                   loading={loading}
@@ -380,7 +381,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                 </span>
               </div>
               <div className="flex justify-between text-[10px] uppercase text-gray-400">
-                <span>Monthly Fee</span><span className="text-black">R195.00</span>
+                <span>Monthly Fee</span><span className="text-black">R1.00</span>
               </div>
             </div>
             {!profile?.is_active_member && (
@@ -388,7 +389,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                 onClick={() => { setActiveModal('paydetails'); setPayMsg(null); }}
                 className="w-full py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all"
               >
-                Activate Membership — R195/m
+                Activate Membership — R1/day
               </button>
             )}
             <button onClick={requestConsultation} className="w-full py-3 border border-black/10 text-[10px] font-black uppercase tracking-widest text-black hover:bg-gray-50 transition-all">Change Plan</button>
