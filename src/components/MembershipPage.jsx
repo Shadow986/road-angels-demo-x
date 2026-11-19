@@ -7,13 +7,13 @@ const BadgeTierCard = ({ trophyColor, title, goal, description, features }) => (
       <Trophy size={28} color={trophyColor} strokeWidth={1.5} />
     </div>
     <h3 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-2">{title}</h3>
-    <p className="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-400">{goal} Goal</p>
-    <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed font-bold mb-10">"{description}"</p>
+    <p className="text-[10px] font-black uppercase tracking-widest mb-6 text-gray-600">{goal} Goal</p>
+    <p className="text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed font-bold mb-10">"{description}"</p>
     <div className="space-y-4 pt-8 border-t border-black/5">
       {features.map((feature, i) => (
         <div key={i} className="flex items-center gap-3">
           <CheckCircle2 size={14} className="text-[var(--color-vag-blue)]" />
-          <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold">{feature}</span>
+          <span className="text-[9px] text-gray-600 uppercase tracking-widest font-bold">{feature}</span>
         </div>
       ))}
     </div>

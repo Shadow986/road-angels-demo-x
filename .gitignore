@@ -3,6 +3,9 @@
 .env.local
 .env.*.local
 
+# Sensitive docs
+docs/credentials.md
+
 # Logs
 logs
 *.log

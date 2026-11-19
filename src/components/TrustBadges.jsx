@@ -8,7 +8,7 @@ const Badge = ({ title, subtitle, icon: Icon }) => (
       <Icon size={32} strokeWidth={1} />
     </div>
     <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-black mb-1">{title}</h4>
-    <p className="text-[8px] text-gray-400 uppercase tracking-widest font-bold">{subtitle}</p>
+    <p className="text-[8px] text-gray-600 uppercase tracking-widest font-bold">{subtitle}</p>
   </div>
 );
 
@@ -23,7 +23,7 @@ export default function TrustBadges() {
           <Badge icon={Zap} title="MIWA Member" subtitle="Workshop Association" />
         </div>
         <div className="mt-12 text-center">
-          <p className="text-[8px] text-gray-400 uppercase tracking-[0.5em] font-bold">
+          <p className="text-[8px] text-gray-600 uppercase tracking-[0.5em] font-bold">
             All engineering procedures strictly adhere to OEM technical bulletins.
           </p>
         </div>

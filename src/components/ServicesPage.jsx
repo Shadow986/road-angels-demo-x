@@ -23,7 +23,7 @@ const TechnicalServiceCard = ({ id, title, subtitle, description, specs, icon: I
           {specs.map((spec, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-1 h-1 bg-[var(--color-halo-silver)]" />
-              <span className="text-[9px] text-gray-400 uppercase font-black tracking-widest">{spec}</span>
+              <span className="text-[9px] text-gray-600 uppercase font-black tracking-widest">{spec}</span>
             </div>
           ))}
         </div>
@@ -68,7 +68,7 @@ export default function ServicesPage({ onSelectService }) {
       <div className="max-w-7xl mx-auto mt-24 p-12 bg-gray-50 border border-black/5 flex flex-col md:flex-row justify-between items-center gap-8">
         <div>
           <h2 className="text-2xl font-black italic uppercase tracking-tighter text-black mb-2">Unsure which service you need?</h2>
-          <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">Use our diagnostic terminal or contact an engineer directly.</p>
+          <p className="text-[10px] uppercase tracking-widest text-gray-600 font-bold">Use our diagnostic terminal or contact an engineer directly.</p>
         </div>
         <button className="px-8 py-4 border border-black/10 text-black text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black hover:text-white transition-all">
           Call Engineer

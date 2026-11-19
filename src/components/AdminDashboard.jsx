@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, title, children, wide }) => {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
       <div className={`bg-white border border-black/10 w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto`}>
-        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+        <button onClick={onClose} className="absolute top-6 right-6 text-gray-600 hover:text-black transition-colors">
           <X size={20} />
         </button>
         <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-6 border-b border-black/5 pb-4">{title}</h2>
@@ -50,10 +50,10 @@ const StatCard = ({ label, value, subtext, icon: Icon, color }) => (
       <div className="p-2 border border-black/10 text-black">
         <Icon size={18} />
       </div>
-      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
+      <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">{label}</span>
     </div>
     <div className="text-2xl font-black italic uppercase text-black">{value}</div>
-    <div className="text-[9px] text-gray-400 uppercase tracking-tighter mt-1">{subtext}</div>
+    <div className="text-[9px] text-gray-600 uppercase tracking-tighter mt-1">{subtext}</div>
   </div>
 );
 
@@ -113,7 +113,7 @@ function OverviewTab({ stats, recentMembers, recentPayments }) {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Dashboard <span className="text-[var(--color-halo-silver)]">Overview</span></h1>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">Real-time platform metrics</p>
+        <p className="text-[10px] text-gray-600 uppercase tracking-widest">Real-time platform metrics</p>
       </div>
 
       {/* Stat Cards */}
@@ -133,18 +133,18 @@ function OverviewTab({ stats, recentMembers, recentPayments }) {
           </div>
           <div className="divide-y divide-black/5">
             {recentMembers.length === 0 ? (
-              <p className="p-6 text-[10px] text-gray-400 uppercase tracking-widest text-center">No members yet</p>
+              <p className="p-6 text-[10px] text-gray-600 uppercase tracking-widest text-center">No members yet</p>
             ) : recentMembers.map((m) => (
               <div key={m.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div>
                   <div className="text-[11px] font-bold text-black uppercase">{m.full_name || 'Unknown'}</div>
-                  <div className="text-[9px] text-gray-400">{m.email}</div>
+                  <div className="text-[9px] text-gray-600">{m.email}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   {m.is_active_member
                     ? <CheckCircle size={12} className="text-green-500" />
                     : <AlertCircle size={12} className="text-orange-500" />}
-                  <span className="text-[9px] font-bold uppercase text-gray-500">{fmtDate(m.created_at)}</span>
+                  <span className="text-[9px] font-bold uppercase text-gray-600">{fmtDate(m.created_at)}</span>
                 </div>
               </div>
             ))}
@@ -158,12 +158,12 @@ function OverviewTab({ stats, recentMembers, recentPayments }) {
           </div>
           <div className="divide-y divide-black/5">
             {recentPayments.length === 0 ? (
-              <p className="p-6 text-[10px] text-gray-400 uppercase tracking-widest text-center">No payments yet</p>
+              <p className="p-6 text-[10px] text-gray-600 uppercase tracking-widest text-center">No payments yet</p>
             ) : recentPayments.map((p) => (
               <div key={p.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div>
                   <div className="text-[11px] font-bold text-black">{p.email}</div>
-                  <div className="text-[9px] text-gray-400 font-mono">{p.reference}</div>
+                  <div className="text-[9px] text-gray-600 font-mono">{p.reference}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-[11px] font-black text-black">{fmtMoney(p.amount)}</div>
@@ -256,13 +256,13 @@ function MembersTab() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Member <span className="text-[var(--color-halo-silver)]">Management</span></h1>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">{members.length} registered members</p>
+        <p className="text-[10px] text-gray-600 uppercase tracking-widest">{members.length} registered members</p>
       </div>
 
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
           <input
             type="text"
             value={search}
@@ -279,7 +279,7 @@ function MembersTab() {
               className={`px-4 py-3 text-[9px] font-black uppercase tracking-widest border transition-all ${
                 filter === f
                   ? 'bg-black text-white border-black'
-                  : 'bg-white text-gray-400 border-black/10 hover:border-black/20'
+                  : 'bg-white text-gray-600 border-black/10 hover:border-black/20'
               }`}
             >
               {f}
@@ -292,7 +292,7 @@ function MembersTab() {
       <div className="bg-white border border-black/10 rounded-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-400 bg-gray-50">
+            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-600 bg-gray-50">
               <th className="p-4">Member</th>
               <th className="p-4">Contact</th>
               <th className="p-4">Tier</th>
@@ -307,18 +307,18 @@ function MembersTab() {
               <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                 <td className="p-4">
                   <div className="text-[11px] font-black text-black uppercase">{u.full_name || 'Unknown'}</div>
-                  <div className="text-[9px] text-gray-400">{fmtDate(u.created_at)}</div>
+                  <div className="text-[9px] text-gray-600">{fmtDate(u.created_at)}</div>
                 </td>
                 <td className="p-4">
                   <div className="text-[10px] text-gray-600">{u.email}</div>
-                  <div className="text-[9px] text-gray-400">{u.phone || '—'}</div>
+                  <div className="text-[9px] text-gray-600">{u.phone || '—'}</div>
                 </td>
                 <td className="p-4">
                   <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 border border-black/10 text-black">
                     {u.membership_rank || 'Bronze'}
                   </span>
                 </td>
-                <td className="p-4 text-[11px] font-mono text-gray-500">{u.vehicles?.length || 0}</td>
+                <td className="p-4 text-[11px] font-mono text-gray-600">{u.vehicles?.length || 0}</td>
                 <td className="p-4">
                   <button onClick={() => toggleActive(u.id, u.is_active_member)} className="flex items-center gap-1.5">
                     {u.is_active_member
@@ -331,19 +331,19 @@ function MembersTab() {
                   <button onClick={() => toggleRole(u.id, u.role)} className="flex items-center gap-1.5">
                     {u.role === 'admin'
                       ? <ShieldCheck size={12} className="text-[var(--color-halo-silver)]" />
-                      : <Users size={12} className="text-gray-400" />}
-                    <span className="text-[9px] font-bold uppercase text-gray-500">{u.role || 'user'}</span>
+                      : <Users size={12} className="text-gray-600" />}
+                    <span className="text-[9px] font-bold uppercase text-gray-600">{u.role || 'user'}</span>
                   </button>
                 </td>
                 <td className="p-4">
                   <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => setViewUser(u)} className="p-1.5 text-gray-400 hover:text-black transition-all" title="View">
+                    <button onClick={() => setViewUser(u)} className="p-1.5 text-gray-600 hover:text-black transition-all" title="View">
                       <Eye size={14} />
                     </button>
-                    <button onClick={() => setSelectedUser(u)} className="p-1.5 text-gray-400 hover:text-black transition-all" title="Edit">
+                    <button onClick={() => setSelectedUser(u)} className="p-1.5 text-gray-600 hover:text-black transition-all" title="Edit">
                       <Edit3 size={14} />
                     </button>
-                    <button onClick={() => setConfirmDelete(u)} className="p-1.5 text-gray-400 hover:text-red-500 transition-all" title="Delete">
+                    <button onClick={() => setConfirmDelete(u)} className="p-1.5 text-gray-600 hover:text-red-500 transition-all" title="Delete">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -353,7 +353,7 @@ function MembersTab() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center">No members found</p>
+          <p className="p-8 text-[10px] text-gray-600 uppercase tracking-widest text-center">No members found</p>
         )}
       </div>
 
@@ -400,6 +400,7 @@ const EditMemberModal = ({ user, isSaving, onClose, onSave }) => {
     surname: user.surname || '',
     id_passport: user.id_passport || '',
     car_make: user.car_make || '',
+    vin: user.vin || '',
     address: user.address || '',
     membership_rank: user.membership_rank || 'Bronze',
     is_active_member: user.is_active_member || false,
@@ -417,6 +418,7 @@ const EditMemberModal = ({ user, isSaving, onClose, onSave }) => {
           <Field label="ID / Passport" value={form.id_passport} onChange={v => setForm({ ...form, id_passport: v })} />
           <Field label="Car Make" value={form.car_make} onChange={v => setForm({ ...form, car_make: v })} />
         </div>
+        <Field label="VIN Number" value={form.vin} onChange={v => setForm({ ...form, vin: v })} />
         <Field label="Address" value={form.address} onChange={v => setForm({ ...form, address: v })} />
 
         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-black/5">
@@ -425,13 +427,13 @@ const EditMemberModal = ({ user, isSaving, onClose, onSave }) => {
           <SelectField label="Role" value={form.role} onChange={v => setForm({ ...form, role: v })}
             options={[{ v: 'user', l: 'User' }, { v: 'admin', l: 'Admin' }]} />
           <div className="space-y-2">
-            <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Active Member</label>
+            <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Active Member</label>
             <button
               onClick={() => setForm({ ...form, is_active_member: !form.is_active_member })}
               className={`w-full py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${
                 form.is_active_member
                   ? 'bg-green-50 text-green-700 border-green-200'
-                  : 'bg-gray-50 text-gray-400 border-black/10'
+                  : 'bg-gray-50 text-gray-600 border-black/10'
               }`}
             >
               {form.is_active_member ? '✓ Active' : '✗ Inactive'}
@@ -468,20 +470,21 @@ const ViewMemberModal = ({ user, onClose }) => (
         <DetailRow icon={CreditCard} label="ID / Passport" value={user.id_passport} />
         <DetailRow icon={Car} label="Car Make" value={user.car_make} />
       </div>
+      <DetailRow icon={Car} label="VIN Number" value={user.vin} />
       <DetailRow icon={MapPin} label="Address" value={user.address} />
 
       {/* Status */}
       <div className="grid grid-cols-3 gap-4 pt-4 border-t border-black/5">
         <div className="p-4 bg-gray-50 border border-black/5">
-          <div className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">Tier</div>
+          <div className="text-[9px] font-black uppercase text-gray-600 tracking-widest mb-2">Tier</div>
           <div className="text-[12px] font-black text-black uppercase">{user.membership_rank || 'Bronze'}</div>
         </div>
         <div className="p-4 bg-gray-50 border border-black/5">
-          <div className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">Role</div>
+          <div className="text-[9px] font-black uppercase text-gray-600 tracking-widest mb-2">Role</div>
           <div className="text-[12px] font-black text-black uppercase">{user.role || 'user'}</div>
         </div>
         <div className="p-4 bg-gray-50 border border-black/5">
-          <div className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-2">Status</div>
+          <div className="text-[9px] font-black uppercase text-gray-600 tracking-widest mb-2">Status</div>
           <div className={`text-[12px] font-black uppercase ${user.is_active_member ? 'text-green-600' : 'text-orange-500'}`}>
             {user.is_active_member ? 'Active' : 'Pending'}
           </div>
@@ -499,18 +502,18 @@ const ViewMemberModal = ({ user, onClose }) => (
                   <img src={v.image_url} alt={v.model} className="w-16 h-16 object-cover border border-black/10" />
                 ) : (
                   <div className="w-16 h-16 bg-gray-100 border border-black/10 flex items-center justify-center">
-                    <Car size={20} className="text-gray-300" />
+                    <Car size={20} className="text-gray-400" />
                   </div>
                 )}
                 <div>
                   <div className="text-[10px] font-black text-black uppercase">{v.make} {v.model}</div>
-                  <div className="text-[9px] text-gray-400 font-mono">{v.plate}</div>
-                  {v.vin && <div className="text-[8px] text-gray-400 font-mono tracking-wider mt-0.5">VIN: {v.vin}</div>}
+                  <div className="text-[9px] text-gray-600 font-mono">{v.plate}</div>
+                  {v.vin && <div className="text-[8px] text-gray-600 font-mono tracking-wider mt-0.5">VIN: {v.vin}</div>}
                   <div className="flex items-center gap-1 mt-1">
                     {v.is_verified
                       ? <CheckCircle size={10} className="text-green-500" />
                       : <AlertCircle size={10} className="text-orange-500" />}
-                    <span className="text-[8px] font-bold uppercase text-gray-400">{v.is_verified ? 'Verified' : 'Unverified'}</span>
+                    <span className="text-[8px] font-bold uppercase text-gray-600">{v.is_verified ? 'Verified' : 'Unverified'}</span>
                   </div>
                 </div>
               </div>
@@ -519,7 +522,7 @@ const ViewMemberModal = ({ user, onClose }) => (
         </div>
       )}
 
-      <div className="text-[9px] text-gray-400 uppercase tracking-widest pt-4 border-t border-black/5">
+      <div className="text-[9px] text-gray-600 uppercase tracking-widest pt-4 border-t border-black/5">
         Joined: {fmtDateTime(user.created_at)}
       </div>
     </div>
@@ -576,11 +579,11 @@ function VehiclesTab() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Vehicle <span className="text-[var(--color-halo-silver)]">Registry</span></h1>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">{vehicles.length} registered vehicles</p>
+        <p className="text-[10px] text-gray-600 uppercase tracking-widest">{vehicles.length} registered vehicles</p>
       </div>
 
       <div className="relative">
-        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
         <input
           type="text"
           value={search}
@@ -605,8 +608,8 @@ function VehiclesTab() {
               <div className="flex justify-between items-start">
                 <div>
                   <div className="text-[11px] font-black text-black uppercase">{v.make} {v.model}</div>
-                  <div className="text-[9px] text-gray-400 font-mono tracking-widest">{v.plate}</div>
-                  {v.vin && <div className="text-[8px] text-gray-400 font-mono tracking-wider mt-1">VIN: {v.vin}</div>}
+                  <div className="text-[9px] text-gray-600 font-mono tracking-widest">{v.plate}</div>
+                  {v.vin && <div className="text-[8px] text-gray-600 font-mono tracking-wider mt-1">VIN: {v.vin}</div>}
                 </div>
                 <button
                   onClick={() => toggleVerify(v.id, v.is_verified)}
@@ -621,12 +624,12 @@ function VehiclesTab() {
                 </button>
               </div>
               <div className="flex items-center gap-2 pt-2 border-t border-black/5">
-                <Users size={10} className="text-gray-400" />
-                <span className="text-[9px] text-gray-500 uppercase font-bold">{v.profiles?.full_name || 'Unknown'}</span>
+                <Users size={10} className="text-gray-600" />
+                <span className="text-[9px] text-gray-600 uppercase font-bold">{v.profiles?.full_name || 'Unknown'}</span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-black/5">
-                <span className="text-[8px] text-gray-400 uppercase">{fmtDate(v.created_at)}</span>
-                <button onClick={() => setConfirmDelete(v)} className="p-1 text-gray-300 hover:text-red-500 transition-all">
+                <span className="text-[8px] text-gray-600 uppercase">{fmtDate(v.created_at)}</span>
+                <button onClick={() => setConfirmDelete(v)} className="p-1 text-gray-400 hover:text-red-500 transition-all">
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -636,7 +639,7 @@ function VehiclesTab() {
       </div>
 
       {filtered.length === 0 && (
-        <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center bg-white border border-black/10 rounded-sm">No vehicles found</p>
+        <p className="p-8 text-[10px] text-gray-600 uppercase tracking-widest text-center bg-white border border-black/10 rounded-sm">No vehicles found</p>
       )}
 
       {confirmDelete && (
@@ -708,15 +711,15 @@ function PaymentsTab() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Payment <span className="text-[var(--color-halo-silver)]">Records</span></h1>
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest">{payments.length} transactions · {fmtMoney(totalRevenue)} total revenue</p>
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest">{payments.length} transactions · {fmtMoney(totalRevenue)} total revenue</p>
         </div>
         <div className="flex gap-3">
           <div className="bg-white border border-black/10 px-4 py-3">
-            <div className="text-[8px] text-gray-400 uppercase tracking-widest font-black">Revenue</div>
+            <div className="text-[8px] text-gray-600 uppercase tracking-widest font-black">Revenue</div>
             <div className="text-[14px] font-black text-black">{fmtMoney(totalRevenue)}</div>
           </div>
           <div className="bg-white border border-black/10 px-4 py-3">
-            <div className="text-[8px] text-gray-400 uppercase tracking-widest font-black">Success</div>
+            <div className="text-[8px] text-gray-600 uppercase tracking-widest font-black">Success</div>
             <div className="text-[14px] font-black text-green-600">{successCount}</div>
           </div>
         </div>
@@ -725,7 +728,7 @@ function PaymentsTab() {
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
           <input
             type="text"
             value={search}
@@ -742,7 +745,7 @@ function PaymentsTab() {
               className={`px-4 py-3 text-[9px] font-black uppercase tracking-widest border transition-all ${
                 filter === f
                   ? 'bg-black text-white border-black'
-                  : 'bg-white text-gray-400 border-black/10 hover:border-black/20'
+                  : 'bg-white text-gray-600 border-black/10 hover:border-black/20'
               }`}
             >
               {f}
@@ -755,7 +758,7 @@ function PaymentsTab() {
       <div className="bg-white border border-black/10 rounded-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-400 bg-gray-50">
+            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-600 bg-gray-50">
               <th className="p-4">Reference</th>
               <th className="p-4">Member</th>
               <th className="p-4">Email</th>
@@ -768,7 +771,7 @@ function PaymentsTab() {
           <tbody className="divide-y divide-black/5">
             {filtered.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                <td className="p-4 text-[10px] font-mono text-gray-500">{p.reference}</td>
+                <td className="p-4 text-[10px] font-mono text-gray-600">{p.reference}</td>
                 <td className="p-4 text-[11px] font-black text-black uppercase">{p.profiles?.full_name || '—'}</td>
                 <td className="p-4 text-[10px] text-gray-600">{p.email}</td>
                 <td className="p-4 text-[11px] font-black text-black">{fmtMoney(p.amount)}</td>
@@ -781,9 +784,9 @@ function PaymentsTab() {
                     {p.status}
                   </span>
                 </td>
-                <td className="p-4 text-[9px] text-gray-400">{fmtDateTime(p.created_at)}</td>
+                <td className="p-4 text-[9px] text-gray-600">{fmtDateTime(p.created_at)}</td>
                 <td className="p-4 text-right">
-                  <button onClick={() => setConfirmDelete(p)} className="p-1.5 text-gray-400 hover:text-red-500 transition-all">
+                  <button onClick={() => setConfirmDelete(p)} className="p-1.5 text-gray-600 hover:text-red-500 transition-all">
                     <Trash2 size={14} />
                   </button>
                 </td>
@@ -792,7 +795,7 @@ function PaymentsTab() {
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center">No payments found</p>
+          <p className="p-8 text-[10px] text-gray-600 uppercase tracking-widest text-center">No payments found</p>
         )}
       </div>
 
@@ -856,7 +859,7 @@ function SettingsTab() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Site <span className="text-[var(--color-halo-silver)]">Settings</span></h1>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">Configure platform-wide values</p>
+        <p className="text-[10px] text-gray-600 uppercase tracking-widest">Configure platform-wide values</p>
       </div>
 
       {saveMsg && (
@@ -872,7 +875,7 @@ function SettingsTab() {
           <div key={s.id} className="p-6 flex flex-col md:flex-row md:items-center gap-4">
             <div className="md:w-64">
               <div className="text-[11px] font-black text-black uppercase">{s.label || s.key}</div>
-              {s.description && <div className="text-[9px] text-gray-400 mt-1">{s.description}</div>}
+              {s.description && <div className="text-[9px] text-gray-600 mt-1">{s.description}</div>}
             </div>
             <input
               type="text"
@@ -1015,7 +1018,7 @@ function AdminsTab() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Admin <span className="text-[var(--color-halo-silver)]">Management</span></h1>
-          <p className="text-[10px] text-gray-400 uppercase tracking-widest">{admins.length} admin accounts</p>
+          <p className="text-[10px] text-gray-600 uppercase tracking-widest">{admins.length} admin accounts</p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
@@ -1043,7 +1046,7 @@ function AdminsTab() {
         <Modal isOpen={true} onClose={() => setShowAddForm(false)} title="Add New Admin">
           <form onSubmit={handleAddAdmin} className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+              <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest flex items-center gap-2">
                 <Mail size={12} /> Email Address
               </label>
               <input
@@ -1057,7 +1060,7 @@ function AdminsTab() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest flex items-center gap-2">
+              <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest flex items-center gap-2">
                 <Lock size={12} /> Temporary Password
               </label>
               <input
@@ -1069,12 +1072,12 @@ function AdminsTab() {
                 className="w-full bg-gray-50 border border-black/10 p-4 text-[12px] text-black focus:outline-none focus:border-[var(--color-halo-silver)]"
                 placeholder="Minimum 8 characters"
               />
-              <p className="text-[9px] text-gray-400">The new admin can change this after first login.</p>
+              <p className="text-[9px] text-gray-600">The new admin can change this after first login.</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Full Name</label>
+                <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Full Name</label>
                 <input
                   type="text"
                   required
@@ -1085,7 +1088,7 @@ function AdminsTab() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Phone (Optional)</label>
+                <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Phone (Optional)</label>
                 <input
                   type="text"
                   value={formData.phone}
@@ -1116,7 +1119,7 @@ function AdminsTab() {
       <div className="bg-white border border-black/10 rounded-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-400 bg-gray-50">
+            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-600 bg-gray-50">
               <th className="p-4">Admin</th>
               <th className="p-4">Contact</th>
               <th className="p-4">Added</th>
@@ -1140,9 +1143,9 @@ function AdminsTab() {
                 </td>
                 <td className="p-4">
                   <div className="text-[10px] text-gray-600">{a.phone || '—'}</div>
-                  <div className="text-[9px] text-gray-400">See auth.users for email</div>
+                  <div className="text-[9px] text-gray-600">See auth.users for email</div>
                 </td>
-                <td className="p-4 text-[9px] text-gray-400">{fmtDate(a.created_at)}</td>
+                <td className="p-4 text-[9px] text-gray-600">{fmtDate(a.created_at)}</td>
                 <td className="p-4">
                   {a.is_active_member
                     ? <span className="flex items-center gap-1 text-[9px] font-bold uppercase text-green-600"><CheckCircle size={10} /> Active</span>
@@ -1150,7 +1153,7 @@ function AdminsTab() {
                 </td>
                 <td className="p-4 text-right">
                   {isSelf(a.id) ? (
-                    <span className="text-[9px] font-bold uppercase text-gray-300">Current Session</span>
+                    <span className="text-[9px] font-bold uppercase text-gray-400">Current Session</span>
                   ) : (
                     <button
                       onClick={() => setConfirmDemote(a)}
@@ -1165,7 +1168,7 @@ function AdminsTab() {
           </tbody>
         </table>
         {admins.length === 0 && (
-          <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center">No admins found</p>
+          <p className="p-8 text-[10px] text-gray-600 uppercase tracking-widest text-center">No admins found</p>
         )}
       </div>
 
@@ -1223,11 +1226,11 @@ function LogsTab() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-black italic uppercase tracking-tighter text-black mb-1">Audit <span className="text-[var(--color-halo-silver)]">Logs</span></h1>
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">{logs.length} recent admin actions</p>
+        <p className="text-[10px] text-gray-600 uppercase tracking-widest">{logs.length} recent admin actions</p>
       </div>
 
       <div className="relative">
-        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600" />
         <input
           type="text"
           value={search}
@@ -1240,7 +1243,7 @@ function LogsTab() {
       <div className="bg-white border border-black/10 rounded-sm overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-400 bg-gray-50">
+            <tr className="border-b border-black/10 text-[9px] uppercase font-black tracking-widest text-gray-600 bg-gray-50">
               <th className="p-4">Action</th>
               <th className="p-4">Admin</th>
               <th className="p-4">Target</th>
@@ -1256,16 +1259,16 @@ function LogsTab() {
                   <span className="text-[10px] font-black text-black uppercase">{l.action?.replace(/_/g, ' ')}</span>
                 </td>
                 <td className="p-4 text-[10px] text-gray-600">{l.profiles?.full_name || 'System'}</td>
-                <td className="p-4 text-[9px] font-mono text-gray-400">{l.target_id ? l.target_id.slice(0, 8) + '…' : '—'}</td>
-                <td className="p-4 text-[10px] text-gray-500 uppercase">{l.target_table || '—'}</td>
-                <td className="p-4 text-[9px] text-gray-400 font-mono max-w-xs truncate">{l.details || '—'}</td>
-                <td className="p-4 text-[9px] text-gray-400">{fmtDateTime(l.created_at)}</td>
+                <td className="p-4 text-[9px] font-mono text-gray-600">{l.target_id ? l.target_id.slice(0, 8) + '…' : '—'}</td>
+                <td className="p-4 text-[10px] text-gray-600 uppercase">{l.target_table || '—'}</td>
+                <td className="p-4 text-[9px] text-gray-600 font-mono max-w-xs truncate">{l.details || '—'}</td>
+                <td className="p-4 text-[9px] text-gray-600">{fmtDateTime(l.created_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {filtered.length === 0 && (
-          <p className="p-8 text-[10px] text-gray-400 uppercase tracking-widest text-center">No logs found</p>
+          <p className="p-8 text-[10px] text-gray-600 uppercase tracking-widest text-center">No logs found</p>
         )}
       </div>
     </div>
@@ -1281,7 +1284,7 @@ const LoadingState = () => (
 
 const Field = ({ label, value, onChange }) => (
   <div className="space-y-2">
-    <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">{label}</label>
+    <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest">{label}</label>
     <input
       type="text"
       value={value || ''}
@@ -1293,7 +1296,7 @@ const Field = ({ label, value, onChange }) => (
 
 const SelectField = ({ label, value, onChange, options }) => (
   <div className="space-y-2">
-    <label className="text-[9px] font-black uppercase text-gray-500 tracking-widest">{label}</label>
+    <label className="text-[9px] font-black uppercase text-gray-600 tracking-widest">{label}</label>
     <select
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
@@ -1307,8 +1310,8 @@ const SelectField = ({ label, value, onChange, options }) => (
 const DetailRow = ({ icon: Icon, label, value }) => (
   <div className="space-y-1">
     <div className="flex items-center gap-2">
-      <Icon size={12} className="text-gray-400" />
-      <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">{label}</span>
+      <Icon size={12} className="text-gray-600" />
+      <span className="text-[9px] font-black uppercase text-gray-600 tracking-widest">{label}</span>
     </div>
     <div className="text-[11px] text-black font-bold pl-5">{value || '—'}</div>
   </div>

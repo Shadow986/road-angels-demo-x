@@ -30,14 +30,14 @@ const StatCard = ({ label, value, icon: Icon, subtext, loading, onClick }) => (
       <div className="p-2 bg-[var(--color-halo-silver)]/10 text-[var(--color-halo-silver)]">
         <Icon size={18} />
       </div>
-      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</span>
+      <span className="text-[10px] font-black text-gray-600 uppercase tracking-widest">{label}</span>
     </div>
     {loading ? (
       <div className="h-8 w-24 bg-black/5 animate-pulse rounded-sm" />
     ) : (
       <div className="text-2xl font-black italic uppercase text-black">{value}</div>
     )}
-    <div className="text-[9px] text-gray-400 uppercase tracking-tighter mt-1">{subtext}</div>
+    <div className="text-[9px] text-gray-600 uppercase tracking-tighter mt-1">{subtext}</div>
     {onClick && (
       <div className="text-[8px] text-[var(--color-halo-silver)] uppercase tracking-widest mt-2 font-black">Tap to view →</div>
     )}
@@ -49,7 +49,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
       <div className="bg-white border border-black/10 w-full max-w-lg p-8 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+        <button onClick={onClose} className="absolute top-6 right-6 text-gray-600 hover:text-black transition-colors">
           <X size={20} />
         </button>
         <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-6 border-b border-black/5 pb-4">{title}</h2>
@@ -148,12 +148,13 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         return;
       }
       setActiveModal(null); // close details modal
+      const planId = import.meta.env.VITE_PAYSTACK_PLAN_ID;
       const handler = PaystackPop.setup({
-        key: 'pk_test_104e8ada8c71f280a5bb45f3e98528da9de96965',
+        key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
         email: user.email,
         amount: 100,
         currency: 'ZAR',
-        plan: 'PLN_jnh71yoi84xqzvj', // Daily recurring plan
+        ...(planId ? { plan: planId } : {}), // Only use plan if configured
         metadata: {
           userId: user.id,
           name: paymentDetails.name,
@@ -172,7 +173,12 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             setPayMsg({ type: 'error', text: 'Payment received but verification failed. Ref: ' + transaction.reference });
           }
         },
-        onClose: () => setPayLoading(false),
+        onClose: () => {
+          setPayLoading(false);
+          if (!planId) {
+            setPayMsg({ type: 'error', text: 'Subscription plan not configured. Please contact the admin team to set up the Paystack plan.' });
+          }
+        },
       });
       handler.openIframe();
     } catch (err) {
@@ -184,7 +190,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
   if (loading) return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4">
       <Loader2 className="text-[var(--color-halo-silver)] animate-spin" size={40} />
-      <span className="text-[10px] text-gray-400 uppercase tracking-widest animate-pulse">Initializing Portal...</span>
+      <span className="text-[10px] text-gray-600 uppercase tracking-widest animate-pulse">Initializing Portal...</span>
     </div>
   );
 
@@ -198,7 +204,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             </h1>
             <div className="flex items-center gap-2 mt-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">
+              <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-bold">
                 {profile?.full_name || "Authorized User"} // Security Cleared
               </p>
             </div>
@@ -210,7 +216,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             <button onClick={requestConsultation} className="px-6 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-halo-silver)] transition-all flex items-center gap-2">
               <MessageSquare size={14} /> Request Consultation
             </button>
-            <button onClick={onLogout} className="p-3 border border-black/10 text-gray-400 hover:text-black transition-all hover:bg-gray-50">
+            <button onClick={onLogout} className="p-3 border border-black/10 text-gray-600 hover:text-black transition-all hover:bg-gray-50">
               <LogOut size={18} />
             </button>
           </div>
@@ -272,15 +278,15 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-[10px] font-bold text-[var(--color-halo-silver)] uppercase tracking-widest">{car.make}</span>
-                      <ShieldCheck size={14} className={car.is_verified ? "text-green-500" : "text-gray-300"} />
+                      <ShieldCheck size={14} className={car.is_verified ? "text-green-500" : "text-gray-400"} />
                     </div>
                     <div className="text-xl font-black italic uppercase text-black mb-1">{car.model}</div>
-                    <div className="text-[12px] font-mono text-gray-400 tracking-widest">{car.plate}</div>
-                    {car.vin && <div className="text-[9px] font-mono text-gray-300 tracking-wider mt-1">VIN: {car.vin}</div>}
+                    <div className="text-[12px] font-mono text-gray-600 tracking-widest">{car.plate}</div>
+                    {car.vin && <div className="text-[9px] font-mono text-gray-500 tracking-wider mt-1">VIN: {car.vin}</div>}
                   </div>
                 </div>
               ))}
-              <button onClick={() => setActiveModal('vehicle')} className="border-2 border-dashed border-black/10 p-6 flex flex-col items-center justify-center text-gray-300 hover:text-black hover:border-black/20 transition-all min-h-[140px] group">
+              <button onClick={() => setActiveModal('vehicle')} className="border-2 border-dashed border-black/10 p-6 flex flex-col items-center justify-center text-gray-400 hover:text-black hover:border-black/20 transition-all min-h-[140px] group">
                 <Plus size={24} className="mb-2 group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-black uppercase tracking-widest">Add Vehicle</span>
               </button>
@@ -293,7 +299,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             </h3>
             <div className="bg-gray-50 border border-black/5 p-8 space-y-6">
               {[{ id: 'profile', label: 'Update Profile' }, { id: 'sub', label: 'Manage Subscription' }, { id: 'history', label: 'Payment History' }].map(action => (
-                <button key={action.id} onClick={() => setActiveModal(action.id)} className="w-full text-left text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-black flex justify-between items-center group transition-colors">
+                <button key={action.id} onClick={() => setActiveModal(action.id)} className="w-full text-left text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:text-black flex justify-between items-center group transition-colors">
                   {action.label} <ChevronRight size={14} className="group-hover:translate-x-1 transition-all" />
                 </button>
               ))}
@@ -307,7 +313,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         <Modal isOpen={activeModal === 'profile'} onClose={() => setActiveModal(null)} title="Profile Settings">
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Display Name</label>
+              <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Display Name</label>
               <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none transition-colors" value={profileForm.full_name} onChange={e => setProfileForm({full_name: e.target.value})} />
             </div>
             <button disabled={isSubmitting} type="submit" className="w-full py-4 bg-black text-white font-black uppercase text-[10px] tracking-widest hover:bg-[var(--color-halo-silver)] transition-all">
@@ -322,11 +328,11 @@ export default function UserDashboard({ onLogout, navigateTo }) {
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Model (e.g. M3 Competition)" value={vehicleForm.model} onChange={e => setVehicleForm({...vehicleForm, model: e.target.value})} />
             <input required className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none" placeholder="Registration Number" value={vehicleForm.plate} onChange={e => setVehicleForm({...vehicleForm, plate: e.target.value})} />
             <div className="space-y-2">
-              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">VIN Number (optional)</label>
+              <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">VIN Number (optional)</label>
               <input className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none uppercase tracking-wider" placeholder="e.g. WBA7E2C50JG8432 10" value={vehicleForm.vin} onChange={e => setVehicleForm({...vehicleForm, vin: e.target.value})} maxLength={17} />
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Car Image (optional)</label>
+              <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Car Image (optional)</label>
               <input type="file" accept="image/*" className="w-full bg-gray-50 border border-black/10 p-3 text-sm text-black outline-none file:mr-4 file:py-1 file:px-3 file:border-0 file:text-[10px] file:font-bold file:uppercase file:bg-black file:text-white cursor-pointer"
                 onChange={e => setVehicleForm({...vehicleForm, imageFile: e.target.files[0]})} />
             </div>
@@ -339,18 +345,18 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         <Modal isOpen={activeModal === 'history'} onClose={() => setActiveModal(null)} title="Transaction History">
           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
             {payments.length === 0 ? (
-              <p className="text-[9px] text-gray-400 text-center uppercase tracking-widest mt-4">No payments found</p>
+              <p className="text-[9px] text-gray-600 text-center uppercase tracking-widest mt-4">No payments found</p>
             ) : (
               payments.map((p) => (
                 <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 border border-black/5">
                   <div className="flex items-center gap-3">
-                    <Clock size={14} className="text-gray-400" />
+                    <Clock size={14} className="text-gray-600" />
                     <div>
                       <div className="text-[10px] uppercase font-bold text-black">Monthly Subscription</div>
-                      <div className="text-[9px] text-gray-400 font-mono mt-0.5">{new Date(p.created_at).toLocaleDateString('en-ZA')}</div>
+                      <div className="text-[9px] text-gray-600 font-mono mt-0.5">{new Date(p.created_at).toLocaleDateString('en-ZA')}</div>
                     </div>
                   </div>
-                  <div className="text-[10px] font-mono text-gray-400">R{(p.amount / 100).toFixed(2)}</div>
+                  <div className="text-[10px] font-mono text-gray-600">R{(p.amount / 100).toFixed(2)}</div>
                 </div>
               ))
             )}
@@ -369,18 +375,18 @@ export default function UserDashboard({ onLogout, navigateTo }) {
               <div className={`text-xl font-black italic uppercase tracking-tighter ${getBadgeFromMonths(payments.length).color}`}>
                 {getBadgeFromMonths(payments.length).name} Road Angel
               </div>
-              <div className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">
+              <div className="text-[9px] text-gray-600 uppercase tracking-widest mt-1">
                 {payments.length} month{payments.length !== 1 ? 's' : ''} paid · {getNextBadgeInfo(payments.length)}
               </div>
             </div>
             <div className="space-y-3">
-              <div className="flex justify-between text-[10px] uppercase text-gray-400">
+              <div className="flex justify-between text-[10px] uppercase text-gray-600">
                 <span>Status</span>
                 <span className={profile?.is_active_member ? 'text-green-600 font-black' : 'text-red-500 font-black'}>
                   {profile?.is_active_member ? 'Active' : 'Inactive'}
                 </span>
               </div>
-              <div className="flex justify-between text-[10px] uppercase text-gray-400">
+              <div className="flex justify-between text-[10px] uppercase text-gray-600">
                 <span>Monthly Fee</span><span className="text-black">R1.00</span>
               </div>
             </div>
@@ -399,11 +405,11 @@ export default function UserDashboard({ onLogout, navigateTo }) {
         {/* Payment Details Modal — collects name + phone before Paystack */}
         <Modal isOpen={activeModal === 'paydetails'} onClose={() => setActiveModal(null)} title="Payment Details">
           <form onSubmit={handlePayNow} className="space-y-5">
-            <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed">
+            <p className="text-[9px] uppercase text-gray-600 tracking-widest leading-relaxed">
               Please confirm your details before proceeding to payment.
             </p>
             <div className="space-y-2">
-              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
+              <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Full Name</label>
               <input
                 required
                 className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-[var(--color-halo-silver)] outline-none transition-colors"
@@ -413,7 +419,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
+              <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Phone Number</label>
               <input
                 required
                 type="tel"
@@ -423,7 +429,7 @@ export default function UserDashboard({ onLogout, navigateTo }) {
                 onChange={e => setPaymentDetails({ ...paymentDetails, phone: e.target.value })}
               />
             </div>
-            <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
+            <div className="flex justify-between text-[10px] uppercase text-gray-600 pt-2 border-t border-black/5">
               <span>Amount Due</span><span className="text-black font-black">R195.00 / month</span>
             </div>
             {payMsg && (

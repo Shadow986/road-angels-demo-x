@@ -48,10 +48,10 @@ export default function Hero() {
             <Zap size={14} className="fill-current" /> VAG GROUP SPECIALISTS
           </div>
           <h1 className="text-5xl md:text-8xl font-black mb-6 leading-[0.9] tracking-tighter uppercase italic text-black">
-            DSG <span className="text-gray-400">PRECISION.</span> <br />
+            DSG <span className="text-gray-600">PRECISION.</span> <br />
             RESTORED.
           </h1>
-          <p className="text-xs md:text-sm text-gray-500 max-w-md border-l-2 border-[var(--color-vag-blue)] pl-6 mb-8 uppercase tracking-[0.2em] leading-loose">
+          <p className="text-xs md:text-sm text-gray-600 max-w-md border-l-2 border-[var(--color-vag-blue)] pl-6 mb-8 uppercase tracking-[0.2em] leading-loose">
             Specializing in Clutch Replacement, Mechatronic Diagnostics, and Performance Gear Repairs for South Africa's elite VAG fleet.
           </p>
 
@@ -87,7 +87,7 @@ export default function Hero() {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="s1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-400 uppercase">01. Select Brand</h3>
+                <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-600 uppercase">01. Select Brand</h3>
                 <div className="space-y-3">
                   {["Audi", "Volkswagen", "Porsche"].map((brand) => (
                     <button 
@@ -104,7 +104,7 @@ export default function Hero() {
 
             {step === 2 && (
               <motion.div key="s2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-400 uppercase">02. Transmission Model</h3>
+                <h3 className="text-[10px] font-black mb-8 tracking-[0.3em] text-gray-600 uppercase">02. Transmission Model</h3>
                 <div className="space-y-3">
                   {["DQ200 (7-Speed)", "DQ250 (6-Speed)", "DL501 (S-Tronic)"].map((type) => (
                     <button 
@@ -115,7 +115,7 @@ export default function Hero() {
                       {type}
                     </button>
                   ))}
-                  <button onClick={() => setStep(1)} className="w-full text-center py-4 text-[8px] text-gray-400 font-bold tracking-widest uppercase mt-2">← Back</button>
+                  <button onClick={() => setStep(1)} className="w-full text-center py-4 text-[8px] text-gray-600 font-bold tracking-widest uppercase mt-2">← Back</button>
                 </div>
               </motion.div>
             )}
@@ -124,7 +124,7 @@ export default function Hero() {
               <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="flex items-center gap-3 mb-6">
                   <CheckCircle2 size={18} className="text-[var(--color-vag-blue)]" />
-                  <h3 className="text-[10px] font-black tracking-[0.3em] text-gray-400 uppercase">Finalize Request</h3>
+                  <h3 className="text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">Finalize Request</h3>
                 </div>
                 <input 
                   type="tel" 
@@ -134,7 +134,7 @@ export default function Hero() {
                 <button className="w-full bg-[var(--color-vag-blue)] py-5 text-white font-black uppercase tracking-[0.3em] text-[11px] hover:brightness-125 transition-all rounded-lg shadow-lg">
                   Request Shift-Check
                 </button>
-                <button onClick={() => setStep(2)} className="w-full text-center py-4 text-[8px] text-gray-400 font-bold tracking-widest uppercase mt-2">Change details</button>
+                <button onClick={() => setStep(2)} className="w-full text-center py-4 text-[8px] text-gray-600 font-bold tracking-widest uppercase mt-2">Change details</button>
               </motion.div>
             )}
           </AnimatePresence>

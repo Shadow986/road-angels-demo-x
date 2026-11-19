@@ -40,18 +40,18 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
       <div className="bg-white border border-black/10 w-full max-w-md p-8 relative shadow-2xl">
-        <button onClick={onClose} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+        <button onClick={onClose} className="absolute top-6 right-6 text-gray-600 hover:text-black transition-colors">
           <X size={20} />
         </button>
         <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-2 border-b border-black/5 pb-4">
           Confirm Your Details
         </h2>
-        <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
+        <p className="text-[9px] uppercase text-gray-600 tracking-widest leading-relaxed mb-6">
           We need these details before processing your R1/day subscription.
         </p>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
+            <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Full Name</label>
             <input
               required
               className={`w-full bg-gray-50 border p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors ${errors.name ? 'border-red-400' : 'border-black/10'}`}
@@ -62,7 +62,7 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
             {errors.name && <p className="text-[9px] text-red-500 uppercase tracking-wide">{errors.name}</p>}
           </div>
           <div className="space-y-2">
-            <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
+            <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Phone Number</label>
             <input
               required
               type="tel"
@@ -73,7 +73,7 @@ function PayDetailsModal({ isOpen, onClose, onSubmit, loading, payMsg }) {
             />
             {errors.phone && <p className="text-[9px] text-red-500 uppercase tracking-wide">{errors.phone}</p>}
           </div>
-          <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
+          <div className="flex justify-between text-[10px] uppercase text-gray-600 pt-2 border-t border-black/5">
             <span>Amount Due</span><span className="text-black font-black">R1.00 / day</span>
           </div>
           {payMsg && (
@@ -161,12 +161,13 @@ export default function MembershipSection({ navigateTo }) {
 
       setShowPayModal(false);
 
+      const planId = import.meta.env.VITE_PAYSTACK_PLAN_ID;
       const handler = PaystackPop.setup({
         key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
         email: user.email,
         amount: pendingAmount * 100,
         currency: 'ZAR',
-        plan: 'PLN_jnh71yoi84xqzvj', // Daily recurring plan
+        ...(planId ? { plan: planId } : {}), // Only use plan if configured
         metadata: { userId: user.id, name, phone },
         callback: async (transaction) => {
           try {
@@ -181,7 +182,12 @@ export default function MembershipSection({ navigateTo }) {
           }
           setLoading(false);
         },
-        onClose: () => setLoading(false),
+        onClose: () => {
+          setLoading(false);
+          if (!planId) {
+            setStatusMsg({ type: 'error', text: 'Subscription plan not configured. Please contact the admin team to set up the Paystack plan.' });
+          }
+        },
       });
       handler.openIframe();
     } catch (err) {
@@ -214,7 +220,7 @@ export default function MembershipSection({ navigateTo }) {
             <h2 className="text-5xl font-black italic uppercase tracking-tighter leading-[0.85] mb-6">
               Unlock Exclusive <br /><span className="text-[var(--color-halo-silver)]">Gearbox Care.</span>
             </h2>
-            <p className="text-gray-500 text-[10px] uppercase tracking-[0.3em] leading-relaxed">
+            <p className="text-gray-600 text-[10px] uppercase tracking-[0.3em] leading-relaxed">
               Join the Road Angels RSA subscription for R1/day to secure long-term performance and massive discounts.
             </p>
           </div>
@@ -245,15 +251,15 @@ export default function MembershipSection({ navigateTo }) {
             >
               <div className="flex justify-between items-start mb-8">
                 <div className="p-3 bg-white border border-black/5">{tier.icon}</div>
-                <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest italic">{tier.duration} Goal</span>
+                <span className="text-[9px] font-mono text-gray-600 uppercase tracking-widest italic">{tier.duration} Goal</span>
               </div>
               <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-2 text-black">{tier.name}</h3>
               <div className="text-[var(--color-halo-silver)] text-[10px] font-black uppercase tracking-widest mb-6">{tier.benefit}</div>
-              <p className="text-[11px] text-gray-500 uppercase leading-relaxed tracking-wider mb-8 italic flex-grow">"{tier.description}"</p>
+              <p className="text-[11px] text-gray-600 uppercase leading-relaxed tracking-wider mb-8 italic flex-grow">"{tier.description}"</p>
               <ul className="space-y-3 py-6 border-y border-black/5 mb-8">
-                <li className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> DSG Gearbox Discounts</li>
-                <li className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> Software Updates</li>
-                <li className="flex items-center gap-3 text-[9px] text-gray-500 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> Roadside Assistance</li>
+                <li className="flex items-center gap-3 text-[9px] text-gray-600 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> DSG Gearbox Discounts</li>
+                <li className="flex items-center gap-3 text-[9px] text-gray-600 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> Software Updates</li>
+                <li className="flex items-center gap-3 text-[9px] text-gray-600 uppercase tracking-widest"><CheckCircle2 size={12} className="text-[var(--color-vag-blue)]" /> Roadside Assistance</li>
               </ul>
               <button
                 onClick={(e) => { e.stopPropagation(); handleJoin(); }}

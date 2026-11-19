@@ -37,7 +37,7 @@ export default function ServiceDetailView({ serviceId, onBack }) {
   const data = serviceDetails[serviceId];
 
   if (!data) return (
-    <div className="pt-40 text-center uppercase tracking-widest text-gray-400">
+    <div className="pt-40 text-center uppercase tracking-widest text-gray-600">
       Service Data Not Found
       <button onClick={onBack} className="block mx-auto mt-4 text-[var(--color-halo-silver)]">Return Home</button>
     </div>
@@ -48,7 +48,7 @@ export default function ServiceDetailView({ serviceId, onBack }) {
       <div className="max-w-5xl mx-auto">
         <button 
           onClick={onBack}
-          className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-gray-400 hover:text-black transition-colors mb-12"
+          className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-gray-600 hover:text-black transition-colors mb-12"
         >
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
           Back to engineering hub
@@ -69,7 +69,7 @@ export default function ServiceDetailView({ serviceId, onBack }) {
           <div className="bg-gray-50 border border-black/5 p-8 flex flex-col justify-center gap-8">
             {Object.entries(data.stats).map(([key, value]) => (
               <div key={key} className="flex justify-between items-end border-b border-black/5 pb-2">
-                <span className="text-[10px] text-gray-400 uppercase tracking-[0.3em] font-bold">{key}</span>
+                <span className="text-[10px] text-gray-600 uppercase tracking-[0.3em] font-bold">{key}</span>
                 <span className="text-xl font-black italic text-black uppercase tracking-tighter">{value}</span>
               </div>
             ))}

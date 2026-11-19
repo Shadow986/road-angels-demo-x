@@ -34,12 +34,14 @@ export default function PaystackButton({ navigateTo }) {
 
     setShowModal(false);
 
+    const planId = import.meta.env.VITE_PAYSTACK_PLAN_ID;
+
     window.PaystackPop.setup({
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
       amount: 100, // R1 (100 kobo)
       currency: 'ZAR',
-      plan: 'PLN_jnh71yoi84xqzvj', // Daily recurring plan
+      ...(planId ? { plan: planId } : {}), // Only use plan if configured
       metadata: { userId: user.id, name: details.name, phone: details.phone },
       callback: (transaction) => {
         supabase.functions.invoke('verify-payment', {
@@ -51,7 +53,12 @@ export default function PaystackButton({ navigateTo }) {
         });
         setLoading(false);
       },
-      onClose: () => setLoading(false),
+      onClose: () => {
+        setLoading(false);
+        if (!planId) {
+          setMsg({ type: 'error', text: 'Subscription plan not configured. Please contact the admin team to set up the Paystack plan.' });
+        }
+      },
     }).openIframe();
   };
 
@@ -61,18 +68,18 @@ export default function PaystackButton({ navigateTo }) {
       {showModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 backdrop-blur-sm">
           <div className="bg-white border border-black/10 w-full max-w-md p-8 relative shadow-2xl">
-            <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors">
+            <button onClick={() => setShowModal(false)} className="absolute top-6 right-6 text-gray-600 hover:text-black transition-colors">
               <X size={20} />
             </button>
             <h2 className="text-xl font-black italic uppercase tracking-tighter text-black mb-2 border-b border-black/5 pb-4">
               Confirm Your Details
             </h2>
-            <p className="text-[9px] uppercase text-gray-400 tracking-widest leading-relaxed mb-6">
+            <p className="text-[9px] uppercase text-gray-600 tracking-widest leading-relaxed mb-6">
               We need these details before processing your R1/day subscription.
             </p>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Full Name</label>
+                <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Full Name</label>
                 <input
                   required
                   className="w-full bg-gray-50 border border-black/10 p-4 text-sm text-black focus:border-gray-400 outline-none transition-colors"
@@ -82,7 +89,7 @@ export default function PaystackButton({ navigateTo }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[9px] uppercase text-gray-400 font-bold tracking-widest">Phone Number</label>
+                <label className="text-[9px] uppercase text-gray-600 font-bold tracking-widest">Phone Number</label>
                 <input
                   required
                   type="tel"
@@ -92,7 +99,7 @@ export default function PaystackButton({ navigateTo }) {
                   onChange={e => setDetails({ ...details, phone: e.target.value })}
                 />
               </div>
-              <div className="flex justify-between text-[10px] uppercase text-gray-400 pt-2 border-t border-black/5">
+              <div className="flex justify-between text-[10px] uppercase text-gray-600 pt-2 border-t border-black/5">
                 <span>Amount Due</span>
                 <span className="text-black font-black">R1.00 / day</span>
               </div>

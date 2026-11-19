@@ -28,7 +28,7 @@ export default function DiagnosticTerminal() {
     setFormData({ name: "", phone: "", car: "", issue: "", faultCode: "" });
   };
 
-  const inputClass = "w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400";
+  const inputClass = "w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-600";
 
   const faultDatabase = {
     "P17BF": { symptom: "Hydraulic Pump Play Protection", feeling: "Car suddenly loses drive; flashing spanner icon.", fix: "Reinforced Accumulator Housing + Calibration." },
@@ -49,13 +49,13 @@ export default function DiagnosticTerminal() {
             <div className="flex bg-gray-100 p-1 rounded-sm mb-8">
               <button 
                 onClick={() => { setMode("code"); setResult(null); }}
-                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${mode === "code" ? "bg-[var(--color-halo-silver)] text-white" : "text-gray-400 hover:text-black"}`}
+                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${mode === "code" ? "bg-[var(--color-halo-silver)] text-white" : "text-gray-600 hover:text-black"}`}
               >
                 I have a Fault Code
               </button>
               <button 
                 onClick={() => { setMode("symptom"); setResult(null); }}
-                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${mode === "symptom" ? "bg-[var(--color-halo-silver)] text-white" : "text-gray-400 hover:text-black"}`}
+                className={`flex-1 py-3 text-[9px] font-black uppercase tracking-widest transition-all ${mode === "symptom" ? "bg-[var(--color-halo-silver)] text-white" : "text-gray-600 hover:text-black"}`}
               >
                 I only have Symptoms
               </button>
@@ -73,7 +73,7 @@ export default function DiagnosticTerminal() {
                     placeholder="ENTER CODE (e.g. P17BF)"
                     className="w-full bg-gray-50 border border-black/10 p-5 text-black font-mono uppercase outline-none focus:border-[var(--color-halo-silver)]"
                   />
-                  <Search className="absolute right-5 top-5 text-gray-400" size={18} />
+                  <Search className="absolute right-5 top-5 text-gray-600" size={18} />
                 </div>
               </div>
             ) : (
@@ -85,7 +85,7 @@ export default function DiagnosticTerminal() {
                     className="text-left p-4 border border-black/5 bg-gray-50 hover:border-[var(--color-halo-silver)]/50 transition-all group"
                   >
                     <p className="text-[10px] font-black text-black uppercase mb-1 group-hover:text-[var(--color-halo-silver)]">{s.title}</p>
-                    <p className="text-[9px] text-gray-400 uppercase tracking-tighter">{s.desc}</p>
+                    <p className="text-[9px] text-gray-600 uppercase tracking-tighter">{s.desc}</p>
                   </button>
                 ))}
               </div>
@@ -160,14 +160,14 @@ export default function DiagnosticTerminal() {
             >
               <button
                 onClick={() => setShowForm(false)}
-                className="absolute top-6 right-6 text-gray-400 hover:text-black transition-colors"
+                className="absolute top-6 right-6 text-gray-600 hover:text-black transition-colors"
               >
                 <X size={20} />
               </button>
 
               <div className="mb-6 border-b border-black/5 pb-4">
                 <h2 className="text-2xl font-black italic uppercase tracking-tighter text-black">Request Diagnostic</h2>
-                <p className="text-[9px] uppercase tracking-widest text-gray-400 mt-1">Our engineers will contact you directly via WhatsApp</p>
+                <p className="text-[9px] uppercase tracking-widest text-gray-600 mt-1">Our engineers will contact you directly via WhatsApp</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">

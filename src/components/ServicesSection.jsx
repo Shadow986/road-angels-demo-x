@@ -21,7 +21,7 @@ export default function ServicesSection() {
             </h2>
           </div>
           <button className="px-8 py-4 border border-black/10 hover:border-[var(--color-vag-blue)] transition-all flex items-center gap-4 group">
-            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-black">Explore Full Specs</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-600 group-hover:text-black">Explore Full Specs</span>
             <ArrowUpRight size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </button>
         </div>
@@ -36,7 +36,7 @@ export default function ServicesSection() {
               <p className="text-[10px] text-gray-500 uppercase leading-relaxed mb-8 tracking-wider font-medium">{s.desc}</p>
               <div className="flex flex-wrap gap-2">
                 {s.tags.map(tag => (
-                  <span key={tag} className="px-2 py-0.5 bg-gray-100 text-[7px] font-black text-gray-400 border border-black/5 uppercase">{tag}</span>
+                  <span key={tag} className="px-2 py-0.5 bg-gray-100 text-[7px] font-black text-gray-600 border border-black/5 uppercase">{tag}</span>
                 ))}
               </div>
             </motion.div>

@@ -3,17 +3,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, ArrowLeft, ChevronRight, Loader2 } from "lucide-react";
 import { supabase } from "../lib/supabaseClient";
 
-const InputField = ({ label, type, placeholder, value, onChange }) => (
+const InputField = ({ label, type, placeholder, value, onChange, maxLength, hint }) => (
   <div className="space-y-2 text-left">
-    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">{label}</label>
+    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-700">{label}</label>
     <input 
       type={type} 
       value={value}
       onChange={onChange}
       required
+      maxLength={maxLength}
       className="w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400" 
       placeholder={placeholder} 
     />
+    {hint && <p className="text-[9px] text-gray-500 normal-case tracking-normal font-normal">{hint}</p>}
   </div>
 );
 
@@ -21,7 +23,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const [view, setView] = useState("login"); // login | register | forgot | register-done | forgot-done
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", address: "" });
+  const [formData, setFormData] = useState({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", vin: "", address: "" });
 
   const updateField = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -41,7 +43,10 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
         const { data, error } = await supabase.auth.signUp({ 
           email: formData.email, 
           password: formData.password,
-          options: { data: { full_name: formData.fullName } }
+          options: { 
+            data: { full_name: formData.fullName },
+            emailRedirectTo: window.location.origin,
+          }
         });
         if (error) throw error;
         // Save all registration details to profile
@@ -53,6 +58,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
             phone: formData.phone,
             id_passport: formData.idPassport,
             car_make: formData.carMake,
+            vin: formData.vin || null,
             address: formData.address,
           });
         }
@@ -92,7 +98,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
   const switchView = (v) => {
     setView(v);
     setError("");
-    setFormData({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", address: "" });
+    setFormData({ email: "", password: "", fullName: "", surname: "", phone: "", idPassport: "", carMake: "", vin: "", address: "" });
   };
 
   const titles = {
@@ -129,7 +135,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
           <h2 className="text-4xl font-black italic uppercase tracking-tighter text-black mb-2 leading-none">
             {titles[view]}
           </h2>
-          <p className="text-[9px] uppercase tracking-[0.4em] text-gray-400 font-bold">Secure Member Portal</p>
+          <p className="text-[9px] uppercase tracking-[0.4em] text-gray-600 font-bold">Secure Member Portal</p>
         </div>
 
         <div className="bg-gray-50 border border-black/10 p-10 rounded-sm">
@@ -142,15 +148,15 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
                 <InputField label="Email Address" type="email" placeholder="member@roadangelsrsa.co.za" value={formData.email} onChange={updateField("email")} />
                 <div className="space-y-2 text-left">
                   <div className="flex justify-between items-center">
-                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500">Password</label>
-                    <button type="button" onClick={() => switchView("forgot")} className="text-[8px] uppercase text-gray-400 hover:text-black transition-colors font-bold">Forgot Access?</button>
+                    <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-700">Password</label>
+                    <button type="button" onClick={() => switchView("forgot")} className="text-[8px] uppercase text-gray-500 hover:text-black transition-colors font-bold">Forgot Access?</button>
                   </div>
                   <input type="password" required className="w-full bg-gray-50 border border-black/10 p-4 text-[13px] text-black focus:outline-none focus:border-[var(--color-halo-silver)] transition-all rounded-sm placeholder:text-gray-400" placeholder="••••••••" value={formData.password} onChange={updateField("password")} />
                 </div>
                 <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-60">
                   {loading ? <Loader2 className="animate-spin" size={14} /> : "Authorize Sign In"} {!loading && <ChevronRight size={14} />}
                 </button>
-                <p className="text-center text-[9px] text-gray-400 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
+                <p className="text-center text-[9px] text-gray-600 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
                   New Member? <button type="button" onClick={() => switchView("register")} className="text-black hover:text-[var(--color-halo-silver)] ml-2">Register Now</button>
                 </p>
               </motion.form>
@@ -166,6 +172,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
                 </div>
                 <InputField label="ID / Passport Number" type="text" placeholder="e.g. 8001015009087" value={formData.idPassport} onChange={updateField("idPassport")} />
                 <InputField label="Car Make & Model" type="text" placeholder="e.g. VW Golf 7 GTI" value={formData.carMake} onChange={updateField("carMake")} />
+                <InputField label="VIN Number" type="text" placeholder="e.g. WBA7E2C50JG843210" value={formData.vin} onChange={updateField("vin")} maxLength={17} hint="17-character Vehicle Identification Number (found on your registration papers)" />
                 <InputField label="Address" type="text" placeholder="e.g. 12 Sandton Drive, Johannesburg" value={formData.address} onChange={updateField("address")} />
                 <InputField label="Phone Number" type="tel" placeholder="e.g. 0712345678" value={formData.phone} onChange={updateField("phone")} />
                 <InputField label="Email Address" type="email" placeholder="email@example.com" value={formData.email} onChange={updateField("email")} />
@@ -173,7 +180,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
                 <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-60">
                   {loading ? <Loader2 className="animate-spin" size={14} /> : "Create Account"} {!loading && <ChevronRight size={14} />}
                 </button>
-                <p className="text-center text-[9px] text-gray-400 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
+                <p className="text-center text-[9px] text-gray-600 uppercase tracking-widest font-bold pt-6 border-t border-black/5">
                   Already Registered? <button type="button" onClick={() => switchView("login")} className="text-black hover:text-[var(--color-halo-silver)] ml-2">Sign In Here</button>
                 </p>
               </motion.form>
@@ -184,7 +191,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
               <motion.div key="register-done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 text-center">
                 <div className="w-16 h-16 mx-auto bg-green-50 border border-green-200 rounded-full flex items-center justify-center text-green-500 text-2xl">✓</div>
                 <div>
-                  <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">
+                  <p className="text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed">
                     Account created! A confirmation link has been sent to <span className="text-black font-bold">{formData.email}</span>. Please check your inbox (and spam folder) and click the link to activate your account.
                   </p>
                 </div>
@@ -197,13 +204,13 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
             {/* ── FORGOT PASSWORD ── */}
             {view === "forgot" && (
               <motion.form key="forgot" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6" onSubmit={handleForgot}>
-                <p className="text-[10px] text-gray-400 uppercase tracking-widest leading-relaxed">Enter your email and we'll send you a reset link.</p>
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">Enter your email and we'll send you a reset link.</p>
                 {error && <p className="text-[10px] text-red-500 font-bold uppercase tracking-wide bg-red-50 border border-red-200 p-3">{error}</p>}
                 <InputField label="Email Address" type="email" placeholder="member@roadangelsrsa.co.za" value={formData.email} onChange={updateField("email")} />
                 <button type="submit" disabled={loading} className="w-full py-5 bg-[var(--color-halo-silver)] text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-black transition-all flex items-center justify-center gap-3 disabled:opacity-60">
                   {loading ? <Loader2 className="animate-spin" size={14} /> : "Send Reset Link"} {!loading && <ChevronRight size={14} />}
                 </button>
-                <button type="button" onClick={() => switchView("login")} className="w-full text-center text-[9px] text-gray-400 uppercase tracking-widest font-bold hover:text-black transition-colors">
+                <button type="button" onClick={() => switchView("login")} className="w-full text-center text-[9px] text-gray-600 uppercase tracking-widest font-bold hover:text-black transition-colors">
                   ← Back to Sign In
                 </button>
               </motion.form>
@@ -213,7 +220,7 @@ export default function AuthPage({ onBack, onLoginSuccess }) {
             {view === "forgot-done" && (
               <motion.div key="forgot-done" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 text-center">
                 <div className="w-16 h-16 mx-auto bg-blue-50 border border-blue-200 rounded-full flex items-center justify-center text-blue-500 text-2xl">✉</div>
-                <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-relaxed">
+                <p className="text-[10px] text-gray-600 uppercase tracking-widest leading-relaxed">
                   A password reset link has been sent to <span className="text-black font-bold">{formData.email}</span>. Check your inbox and spam folder.
                 </p>
                 <button onClick={() => switchView("login")} className="w-full py-5 bg-black text-white text-[11px] font-black uppercase tracking-[0.3em] hover:bg-[var(--color-halo-silver)] transition-all flex items-center justify-center gap-3">

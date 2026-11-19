@@ -69,7 +69,7 @@ export default function AuthoritySection() {
       </div>
 
       <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-black/5">
-        <p className="text-[9px] text-gray-400 uppercase tracking-[0.6em] text-center leading-relaxed">
+        <p className="text-[9px] text-gray-600 uppercase tracking-[0.6em] text-center leading-relaxed">
           Unparalleled Performance and Reliability // Road Angels RSA // Gauteng Hub
         </p>
       </div>
